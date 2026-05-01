@@ -4,6 +4,7 @@
 **Authored by:** Adrian (VP Product) with Claude Cowork
 **For review by:** Dickson (CEO), Faishal (CTO)
 **Builds on:** Dickson + Claude evidence integrity summary (May 1, 2026)
+**GitHub:** https://github.com/adrianautokon/autokon-evidence-integrity-research
 **Status:** Comprehensive R&D brief — disregards engineering / operational difficulty; proposes the full menu
 
 ---
