@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+*.log
+.env
+.surge/
+eicheck*.jpg
+eicheckv2*.jpg

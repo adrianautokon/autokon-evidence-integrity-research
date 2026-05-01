@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoKon — Evidence Integrity R&D Brief</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-50: #EFF6FF; --blue-600: #2563EB; --blue-700: #1D4ED8;
+      --orange-50: #FFF7ED; --orange-500: #F7941D; --orange-600: #FF7426; --orange-700: #C2410C;
+      --slate-25: #FBFCFE; --slate-50: #F8FAFC; --slate-100: #F1F5F9; --slate-200: #E2E8F0;
+      --slate-300: #CBD5E1; --slate-400: #94A3B8; --slate-500: #64748B; --slate-600: #475569;
+      --slate-700: #334155; --slate-800: #1E293B; --slate-900: #0F172A;
+      --green-50: #DCFCE7; --green-700: #166534;
+      --red-50: #FEE2E2; --red-700: #991B1B;
+      --amber-50: #FEF3C7; --amber-700: #92400E;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--slate-25); color: var(--slate-900);
+      -webkit-font-smoothing: antialiased; line-height: 1.6;
+    }
+
+    /* === Top nav === */
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(251, 252, 254, 0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 14px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .brand { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+    .brand .id { color: var(--slate-500); font-weight: 500; }
+    .topnav-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate-500); letter-spacing: 0.04em; }
+    .topnav-search { display: flex; align-items: center; gap: 8px; }
+    .topnav-search input {
+      width: 280px; padding: 8px 12px; border: 1px solid var(--slate-200);
+      border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 13px;
+      background: white;
+    }
+    .topnav-search input:focus { outline: 2px solid var(--blue-600); outline-offset: -1px; border-color: var(--blue-600); }
+
+    /* === Layout === */
+    .layout {
+      display: grid; grid-template-columns: 280px 1fr;
+      max-width: 1400px; margin: 0 auto;
+      min-height: calc(100vh - 56px);
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+    }
+
+    /* === TOC === */
+    .toc {
+      position: sticky; top: 64px; height: calc(100vh - 64px);
+      overflow-y: auto;
+      padding: 32px 24px; border-right: 1px solid var(--slate-200);
+      background: var(--slate-50);
+    }
+    .toc-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--slate-500); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { margin-bottom: 4px; }
+    .toc a {
+      display: block; padding: 5px 8px; border-radius: 4px;
+      font-size: 13px; line-height: 1.4;
+      color: var(--slate-700); text-decoration: none;
+      transition: background 0.12s, color 0.12s;
+    }
+    .toc a:hover { background: white; color: var(--slate-900); }
+    .toc a.active { background: var(--blue-600); color: white; font-weight: 600; }
+    .toc .sub { padding-left: 16px; font-size: 12px; color: var(--slate-600); }
+    .toc .group { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px; color: var(--slate-900); margin-top: 20px; margin-bottom: 6px; padding: 0 8px; }
+
+    /* === Main content === */
+    .main {
+      padding: 48px 56px 96px; min-width: 0;
+      max-width: 1000px;
+    }
+
+    /* Header */
+    .doc-hdr {
+      padding-bottom: 32px; border-bottom: 2px solid var(--slate-900);
+      margin-bottom: 40px;
+    }
+    .doc-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      color: var(--orange-600); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .doc-title {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 44px; line-height: 1.1; letter-spacing: -0.02em;
+      color: var(--slate-900); margin-bottom: 18px;
+    }
+    .doc-meta {
+      display: grid; grid-template-columns: 110px 1fr; gap: 6px 16px;
+      font-size: 13px; line-height: 1.5;
+    }
+    .doc-meta .key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--slate-500); text-transform: uppercase; padding-top: 3px;
+    }
+    .doc-meta .val { color: var(--slate-700); }
+    .doc-meta strong { color: var(--slate-900); font-weight: 600; }
+
+    /* === Body === */
+    h1 {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 30px; line-height: 1.15; letter-spacing: -0.02em;
+      color: var(--slate-900);
+      margin: 56px 0 16px 0;
+      scroll-margin-top: 80px;
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 22px; line-height: 1.2; letter-spacing: -0.01em;
+      color: var(--slate-900);
+      margin: 40px 0 14px 0;
+      padding-bottom: 10px; border-bottom: 1px solid var(--slate-200);
+      scroll-margin-top: 80px;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      font-size: 17px; line-height: 1.3; letter-spacing: -0.005em;
+      color: var(--slate-900);
+      margin: 28px 0 10px 0;
+      scroll-margin-top: 80px;
+    }
+    h4 {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      font-size: 14px;
+      color: var(--slate-700);
+      margin: 18px 0 6px 0;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    p {
+      font-size: 14.5px; line-height: 1.7; color: var(--slate-700);
+      margin-bottom: 16px;
+    }
+    p strong, li strong { color: var(--slate-900); font-weight: 600; }
+    em { color: var(--slate-600); }
+
+    /* === TL;DR callout === */
+    .tldr {
+      background: var(--slate-100); border-left: 4px solid var(--slate-900);
+      padding: 22px 28px; border-radius: 0 8px 8px 0;
+      margin-bottom: 32px;
+    }
+    .tldr h2 {
+      margin: 0 0 12px 0; padding: 0; border: none;
+      font-size: 13px; text-transform: uppercase;
+      letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace;
+      color: var(--slate-700); font-weight: 700;
+    }
+    .tldr p { font-size: 14px; margin-bottom: 10px; }
+    .tldr p:last-child { margin-bottom: 0; }
+
+    /* === Lists === */
+    ul, ol { padding-left: 22px; margin-bottom: 18px; }
+    li { margin-bottom: 8px; line-height: 1.65; color: var(--slate-700); font-size: 14.5px; }
+
+    /* === Tables === */
+    .table-wrap { margin: 16px 0 24px; overflow-x: auto; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 12.5px; line-height: 1.4;
+    }
+    table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+      color: var(--slate-500); text-transform: uppercase;
+      background: var(--slate-50); padding: 10px 10px;
+      border-bottom: 2px solid var(--slate-300);
+      text-align: left; vertical-align: top;
+    }
+    table td {
+      padding: 9px 10px; border-bottom: 1px solid var(--slate-100);
+      vertical-align: top;
+    }
+    table tr:last-child td { border-bottom: 1px solid var(--slate-300); }
+
+    /* === Code blocks === */
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; line-height: 1.55;
+      background: var(--slate-900); color: var(--slate-200);
+      padding: 18px 22px; border-radius: 8px;
+      overflow-x: auto; margin: 16px 0 22px 0;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92em; background: var(--slate-100);
+      padding: 1px 5px; border-radius: 3px;
+      color: var(--slate-800); font-weight: 500;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    /* === Pillar collapsibles === */
+    .pillar {
+      margin: 32px 0; border: 1px solid var(--slate-200);
+      border-radius: 10px; background: white; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+    }
+    .pillar-header {
+      padding: 24px 28px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; transition: background 0.12s;
+    }
+    .pillar-header:hover { background: var(--slate-50); }
+    .pillar.open .pillar-header { border-bottom: 1px solid var(--slate-200); }
+    .pillar-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--blue-600); text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .pillar-title {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 22px; line-height: 1.2; letter-spacing: -0.01em;
+      color: var(--slate-900);
+    }
+    .pillar-question {
+      font-size: 13px; color: var(--slate-500); font-style: italic;
+      margin-top: 6px;
+    }
+    .pillar-toggle {
+      font-family: 'JetBrains Mono', monospace; font-size: 14px;
+      color: var(--slate-400);
+    }
+    .pillar.open .pillar-toggle { transform: rotate(180deg); }
+    .pillar-body { display: none; padding: 24px 28px; }
+    .pillar.open .pillar-body { display: block; }
+
+    /* === Item callouts === */
+    .item {
+      margin: 24px 0; padding: 20px 24px;
+      border-left: 3px solid var(--slate-300);
+      background: var(--slate-50); border-radius: 0 6px 6px 0;
+    }
+    .item.shipped { border-left-color: var(--green-700); background: var(--green-50); }
+    .item.new { border-left-color: var(--orange-600); background: var(--orange-50); }
+    .item.revived { border-left-color: var(--blue-600); background: var(--blue-50); }
+
+    .item-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--slate-600); text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .item.new .item-eyebrow { color: var(--orange-700); }
+    .item.shipped .item-eyebrow { color: var(--green-700); }
+    .item-title {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 16px; line-height: 1.3; color: var(--slate-900);
+      margin-bottom: 8px;
+    }
+
+    /* === Tags === */
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 99px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; margin: 2px 4px 2px 0;
+    }
+    .tag-shipped { background: var(--green-50); color: var(--green-700); }
+    .tag-new { background: var(--orange-50); color: var(--orange-700); }
+    .tag-revived { background: var(--blue-50); color: var(--blue-700); }
+    .tag-phase0 { background: var(--slate-900); color: white; }
+    .tag-phase1 { background: var(--orange-600); color: white; }
+    .tag-phase2 { background: var(--slate-500); color: white; }
+
+    /* === Phase callout === */
+    .phase {
+      margin: 22px 0; padding: 22px 26px; border-radius: 10px;
+    }
+    .phase-0 { background: var(--slate-900); color: white; }
+    .phase-1 { background: var(--orange-600); color: white; }
+    .phase-2 { background: var(--slate-200); color: var(--slate-900); }
+    .phase-r { background: var(--slate-100); color: var(--slate-900); border: 1px dashed var(--slate-400); }
+    .phase h3 { color: inherit; margin-top: 0; }
+    .phase ul { color: inherit; }
+    .phase li { color: inherit; }
+    .phase strong { color: inherit; }
+
+    /* === Quote === */
+    blockquote {
+      border-left: 4px solid var(--slate-300);
+      padding: 4px 0 4px 20px;
+      margin: 16px 0 22px 4px;
+      font-style: italic; color: var(--slate-600);
+      font-size: 14.5px; line-height: 1.65;
+    }
+
+    /* === Search highlight === */
+    .highlighted { background: var(--orange-50); border-left: 3px solid var(--orange-600); padding-left: 8px; }
+
+    /* === Footer === */
+    .doc-ftr {
+      margin-top: 64px; padding-top: 24px;
+      border-top: 1px solid var(--slate-200);
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      color: var(--slate-500); letter-spacing: 0.04em;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+
+    /* === Hidden by search === */
+    .hidden-by-search { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ========== TOP NAV ========== -->
+<nav class="topnav">
+  <div class="brand">AutoKon<span class="id">.id</span> · Evidence Integrity R&amp;D</div>
+  <div class="topnav-search">
+    <input type="text" id="search" placeholder="Search items, solutions, threats..." />
+  </div>
+  <div class="topnav-meta">v1.0 · 2026-05-01</div>
+</nav>
+
+<!-- ========== LAYOUT ========== -->
+<div class="layout">
+
+  <!-- TOC -->
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul>
+      <li><a href="#tldr">TL;DR</a></li>
+      <li><a href="#document-map">Document Map</a></li>
+      <li><a href="#section-1">§1 Locked Principles</a></li>
+      <li><a href="#section-2">§2 Two Cross-Cutting Lenses</a></li>
+
+      <li class="group">§3 The Six Pillars</li>
+      <li><a href="#pillar-1">P1 — Authenticity</a></li>
+      <li><a href="#pillar-2">P2 — Identity</a></li>
+      <li><a href="#pillar-3">P3 — Place</a></li>
+      <li><a href="#pillar-4">P4 — Time</a></li>
+      <li><a href="#pillar-5">P5 — Chain of Custody</a></li>
+      <li><a href="#pillar-6">P6 — Independent Verification</a></li>
+
+      <li class="group">Reference</li>
+      <li><a href="#section-4">§4 Master Item Table</a></li>
+      <li><a href="#section-5">§5 Recommended Ship Priority</a></li>
+      <li><a href="#section-6">§6 Pitch Language</a></li>
+      <li><a href="#section-7">§7 Open Questions</a></li>
+      <li><a href="#section-8">§8 Appendix</a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <header class="doc-hdr">
+      <div class="doc-eyebrow">Comprehensive R&amp;D Brief · Evidence Integrity</div>
+      <h1 class="doc-title" style="margin: 0 0 18px 0;">Six Pillars to make AutoKon's evidence stand up to bank scrutiny.</h1>
+      <div class="doc-meta">
+        <div class="key">Authors</div><div class="val"><strong>Adrian</strong> (VP Product, AutoKon) + Claude Cowork</div>
+        <div class="key">Builds on</div><div class="val">Dickson + Claude evidence integrity summary (May 1, 2026)</div>
+        <div class="key">For review by</div><div class="val"><strong>Dickson</strong> (CEO), <strong>Faishal</strong> (CTO)</div>
+        <div class="key">Status</div><div class="val">Comprehensive R&amp;D brief — disregards engineering / operational difficulty; proposes the full menu</div>
+        <div class="key">Version</div><div class="val">v1.0 · 2026-05-01</div>
+      </div>
+    </header>
+
+    <!-- TL;DR -->
+    <section id="tldr">
+      <div class="tldr">
+        <h2>TL;DR</h2>
+        <p>The bank pitch (BSN/BTN) hinges on one promise: <strong>"prove the photo is real, taken now, of the unit it claims to be — and the audit trail behind it cannot be tampered with."</strong> Dickson's prior work landed a 10-layer additive validation pipeline organized by engineering layer; this brief reorganizes that work — plus selectively-revived rejected items, plus new categories that close the bank-pitch gap — into <strong>6 audience-first pillars</strong> that map to bank concerns directly.</p>
+        <p>The 6 pillars are: <strong>Authenticity</strong> (is this photo real?), <strong>Identity</strong> (is the submitter who they claim?), <strong>Place</strong> (is this the actual unit?), <strong>Time</strong> (was this captured now?), <strong>Chain of Custody</strong> (can this record be tampered with post-hoc?), and <strong>Independent Verification</strong> (do you ever rely on something other than your own software?).</p>
+        <p>Across 6 pillars there are <strong>35 items, with 100+ proposed solutions</strong> analyzed across multiple dimensions: cost, engineering complexity, implementability today, low-end-device friendliness, Pelaksana friction, pitch story strength, false-positive risk, and adversarial difficulty. Two cross-cutting lenses introduced during the R&amp;D brainstorm — <strong>threat motivation</strong> (which fraud is actually economically motivated for whom) and <strong>attacker tech-savviness</strong> (Indonesian field fraudsters are mostly low-tech with high motivation; Word-export-edit-reexport and Instagram-Story overlays are far more common than cryptographic forgery) — shape the recommended ship priorities.</p>
+        <p>Two key takeaways for the bank pitch: <strong>(1) AutoKon is engineered for Indonesian field reality</strong> — equatorial sun-angle math, BMKG weather feeds, call-to-prayer audio cross-check, RT/RW witness signatures, low-tech consumer-app fraud detectors, siteplan-relative GPS pattern matching that respects archipelago infrastructure realities. No US/EU competitor would think to build any of these. <strong>(2) AutoKon makes the inspector 10x more focused</strong> — software pre-screens, KJPP physical inspection inspects what software flags. ~80% of realistic fraud volume caught deterministically; residual 20% is structurally chain-of-custody.</p>
+      </div>
+    </section>
+
+    <!-- Document map -->
+    <section id="document-map">
+      <h2>Document Map</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Section</th><th>Pages</th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr><td><strong>TL;DR</strong></td><td>1</td><td>Above.</td></tr>
+            <tr><td><strong>§1 Locked principles</strong></td><td>2</td><td>Two non-negotiable principles inherited from v3.3 reports-roadmap PRD + Pak Jun memo.</td></tr>
+            <tr><td><strong>§2 Two cross-cutting lenses</strong></td><td>2</td><td>Threat motivation + tech-savviness. The 2x2 that organizes everything.</td></tr>
+            <tr><td><strong>§3 The 6 pillars</strong></td><td>18</td><td>Main body. Each pillar: bank's question, items with threat description + threat motivation + Dickson's existing solution if any + 2–5 solutions with multi-dimensional +/-.</td></tr>
+            <tr><td><strong>§4 Master item table</strong></td><td>2</td><td>Every item across 6 pillars in a single sortable table.</td></tr>
+            <tr><td><strong>§5 Recommended ship priority</strong></td><td>2</td><td>Phase 0 / Phase 1 / Phase 2 / Roadmap reserve.</td></tr>
+            <tr><td><strong>§6 Pitch language reference</strong></td><td>2</td><td>Actual sentences for the bank pitch deck.</td></tr>
+            <tr><td><strong>§7 Open questions</strong></td><td>1</td><td>What Dickson + Faishal need to decide.</td></tr>
+            <tr><td><strong>§8 Appendix</strong></td><td>1</td><td>Relationship to existing AutoKon work.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 1: Locked principles -->
+    <section id="section-1">
+      <h1>§1 Locked Principles</h1>
+      <p>These are inherited from the AutoKon reports-roadmap PRD v3.3 (OpusPrime + Dickson, April 2026) and the Pak Jun product recommendations. This brief respects them without modification.</p>
+
+      <h2>1.1 Quality is out of scope</h2>
+      <p>AutoKon verifies <em>that</em> progress was done, not <em>that</em> the work is high quality. Out: SMKK compliance, QC inspections, warranty defect audits. In: progress verification, rework tracking (financial ledger), retention release gates.</p>
+
+      <h2>1.2 Developers are the customer. Contractors are the counterparty.</h2>
+      <p>Every AutoKon user works for the developer. <strong>Contractors never touch AutoKon.</strong> PDF signatures: developer-org roles only. Document voice: "developer certifies" not "both parties agree."</p>
+
+      <h2>1.3 The bank is the primary user (Pak Jun's reframe)</h2>
+      <p>For the bank pitch context, the bank is the buyer. Reports go to the bank as the audience; raw photos and process noise stay internal. <em>Reports, not raw process</em>, are the bank-facing surface.</p>
+
+      <h2>1.4 No recurring ground discipline</h2>
+      <p>One-time-cost items (KTP enrollment, siteplan upload, 360° baseline, drone overflight if developer already operates one) are eligible for revival. Recurring discipline (per-photo unit-painting, daily code rotation, foreman-discipline-dependent tasks) stays rejected.</p>
+
+      <h2>1.5 Indonesian field reality is a binding constraint</h2>
+      <ul>
+        <li><strong>Cell-tower triangulation in eastern Indonesia is poor.</strong> GPS readings drift ±30m+ in low-coverage provinces (NTT, Maluku, Papua).</li>
+        <li><strong>Indonesians use full addresses, not pin coordinates.</strong> Shopee, Tokopedia, Grab Food, Gojek Food all default to typed addresses + landmarks.</li>
+        <li><strong>Most Indonesian field fraudsters are low-tech with high motivation.</strong> Microsoft Word export, Instagram Story overlays, screenshots, photo-of-printed-photo. Item 1.6 explicitly addresses these.</li>
+      </ul>
+    </section>
+
+    <!-- Section 2: Two lenses -->
+    <section id="section-2">
+      <h1>§2 Two Cross-Cutting Lenses</h1>
+
+      <h2>2.1 Threat Motivation</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Threat actor</th><th>Strong motivation</th><th>Weak motivation</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Developer (primary)</strong></td><td>Recycling photos · Adjacent-unit substitution · Backdating by weeks · AI-generated photos · Photo-of-printed-photo cover-ups</td><td>Sub-hour time-shift · Day-of-week shifting · Cryptographic forgery</td></tr>
+            <tr><td><strong>Pelaksana (secondary)</strong></td><td>Buddy submission · Sloppy backdating by hours/days · Account share</td><td>Edit-forgery · AI-generation</td></tr>
+            <tr><td><strong>External attacker</strong></td><td>All of the above</td><td>Volume-driven (low payoff per project)</td></tr>
+            <tr><td><strong>Insider</strong></td><td>Post-hoc database tampering · Audit-log forgery · Signature backdating</td><td>Real-time submission spoofing</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>2.2 Attacker Tech-Savviness</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Profile</th><th>Common attacks</th><th>Coverage</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Low-tech (most common in Indonesia)</strong></td><td>Word PDF export-edit · IG Story overlays · Screenshots · Photo-of-print · WhatsApp re-share</td><td><strong>Pillars 1–4 catch ~80% of this volume.</strong> Item 1.6 adds explicit detectors.</td></tr>
+            <tr><td><strong>Medium-tech</strong></td><td>EXIF manipulation · Custom timestamp-camera spoofs · Fake-GPS apps</td><td><strong>Pillars 1, 2, 3.</strong> Identity binding (Pillar 2) primary defense.</td></tr>
+            <tr><td><strong>High-tech (very rare)</strong></td><td>AI-generated photos · PRNU manipulation · Cryptographic forgery · Insider attacks</td><td><strong>Pillar 1 (AI detection) + Pillar 5 (chain of custody).</strong> Banks audit Pillar 5 even though volume is low.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>2.3 The 2x2</h2>
+      <pre>                   Tech-savvy attacker
+                         ▲
+                         │
+    Cryptographic        │     AI-generated
+    forgery,             │     photos,
+    insider attack       │     deepfake video
+    (Pillar 5)           │     (Pillar 1.4)
+                         │
+    Low motivation ──────┼────── High motivation
+                         │
+    Sub-hour time        │     Word export, IG
+    shift, weather       │     Story, screenshot,
+    inconsistency        │     adjacent-unit, recycling
+    (Pillar 4 Tier C)    │     (Pillars 1.1, 1.6, 3.1)
+                         │
+                         ▼
+                 Tech-unsavvy attacker</pre>
+      <p><strong>The volume-of-fraud quadrant is bottom-right</strong> (low-tech × high motivation). That's where AutoKon must focus engineering effort.</p>
+    </section>
+
+    <!-- Section 3: The Six Pillars -->
+    <section id="section-3">
+      <h1>§3 The Six Pillars</h1>
+      <p>Each pillar opens with the bank's question, names its scope, and walks each item with: threat description, threat motivation, Dickson's existing solution if any, 2–5 proposed solutions with multi-dimensional +/-, and a recommended take.</p>
+
+      <p style="font-size: 13px; color: var(--slate-500); font-style: italic; margin-top: 16px;">Click each pillar header below to expand. Use the search box at the top to filter for specific items, threats, or solutions.</p>
+
+      <!-- ========== PILLAR 1 ========== -->
+      <div class="pillar" id="pillar-1">
+        <div class="pillar-header" onclick="togglePillar(this)">
+          <div>
+            <div class="pillar-meta">Pillar 1 · 6 items</div>
+            <div class="pillar-title">Authenticity</div>
+            <div class="pillar-question">"Is this photo real, or is it fabricated, edited, or AI-generated?"</div>
+          </div>
+          <div class="pillar-toggle">▼</div>
+        </div>
+        <div class="pillar-body">
+          <p><strong>Scope:</strong> All threats to the underlying authenticity of a photo's content. From sophisticated AI generation at the high-tech end to Microsoft Word export-edit at the low-tech end.</p>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 1.1 · Shipped baseline</div>
+            <div class="item-title">Photo Recycling Detection</div>
+            <p><strong>Threat:</strong> Pelaksana submits the same file across multiple sessions. Dickson's #1 ranked attack, "very high frequency."</p>
+            <p><strong>Solutions:</strong> A pHash + project history (shipped) · B Deep-learning embedding similarity · C Camera-sensor PRNU fingerprint (theoretical for Indonesian field reality)</p>
+            <p><strong>Take:</strong> A is shipped. B is the second-layer addition for cross-project checks. C is a pitch-story option.</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 1.2</div>
+            <div class="item-title">Cross-Photo Consistency</div>
+            <p><strong>Threat:</strong> Pelaksana scripts or batch-generates a submission. Dickson's #11 ranked.</p>
+            <p><strong>Solutions:</strong> A Time-spread statistical · B Lighting/shadow direction across batch · C Claude-based batch consistency · D Per-spec walk-around video as input</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 1.3</div>
+            <div class="item-title">Edit/Photoshop Forgery (ELA)</div>
+            <p><strong>Threat:</strong> Photo opened in Photoshop / phone editor; timestamp altered, re-exported.</p>
+            <p><strong>Solutions:</strong> A ELA (Dickson's deferred Phase 0) · B PRNU sensor pattern · C Multi-model AI ensemble — <em>"as an AI tech company we should enable this"</em></p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 1.4</div>
+            <div class="item-title">AI-Generated Photo Detection</div>
+            <p><strong>Threat:</strong> Stable Diffusion / Midjourney generates fake construction photos.</p>
+            <p><strong>Real-world Indonesian context:</strong> The JAKI Pemprov DKI / Gemini watermark scandal — Jakarta's anti-illegal-parking account posted AI-generated "after" photos with the Gemini watermark visible. <em>"If Pemprov DKI couldn't catch this, why would a bank trust an unscreened photo pipeline?"</em></p>
+            <p><strong>Solutions:</strong> A SD artifact detector · B C2PA content credentials (waits on phone fleet upgrade ~2027+) · C Frequency-domain statistical analysis</p>
+          </div>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 1.5 · Shipped baseline</div>
+            <div class="item-title">Trusted-Source Overlay Validation</div>
+            <p><strong>Solutions:</strong> A Whitelisted timestamp camera + Claude (shipped) · B Custom AutoKon camera app (revived as PILOT-30 commitment) · C Server-side overlay structure check</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 1.6 · NEW · highest leverage</div>
+            <div class="item-title">Low-Tech Indonesian Consumer-App Fraud Detection</div>
+            <p><strong>Threat — the dominant Indonesian fraud profile:</strong></p>
+            <ul>
+              <li>PDF-Word-export-reedit-reexport</li>
+              <li>Instagram Story / IG Layout overlay</li>
+              <li>Screenshot-of-photo / photo-of-screen</li>
+              <li>Photo-of-printed-photo</li>
+              <li>WhatsApp re-share / forward washing</li>
+              <li>Basic phone-editor manipulation (PicsArt, Canva)</li>
+            </ul>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+              <li><strong>A. JPEG quantization-table fingerprinting</strong> — catches Word + phone-app re-encodes. <em>"We can detect when a photo was last saved by Microsoft Word, Photoshop, Instagram, or other consumer apps."</em></li>
+              <li><strong>B. IG-Story artifact detection</strong> — catches the Instagram Story overlay trick.</li>
+              <li><strong>C. Screenshot detection</strong> — image dimensions match phone screen exactly = flagged.</li>
+              <li><strong>D. Photo-of-screen detection</strong> — moiré pattern + reflection analysis.</li>
+              <li><strong>E. Photo-of-print detection</strong> — paper texture + color cast.</li>
+              <li><strong>F. WhatsApp re-share detection</strong> — compression signature + EXIF stripping.</li>
+            </ul>
+            <p><strong>Take:</strong> A + B + C + D should be Phase 0 priority. Highest-volume Indonesian fraud vectors, individually cheap, very high pitch story value.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PILLAR 2 ========== -->
+      <div class="pillar" id="pillar-2">
+        <div class="pillar-header" onclick="togglePillar(this)">
+          <div>
+            <div class="pillar-meta">Pillar 2 · 5 items</div>
+            <div class="pillar-title">Identity</div>
+            <div class="pillar-question">"Is the person submitting this who they claim to be?"</div>
+          </div>
+          <div class="pillar-toggle">▼</div>
+        </div>
+        <div class="pillar-body">
+          <p><strong>Scope:</strong> Legal and operational accountability for who took the photo, who approved it, who signed the report. Pak Jun #10 lives here — <em>"when there is a legal issue, he is the one responsible."</em></p>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 2.1 · Shipped</div>
+            <div class="item-title">Phone-Number Binding</div>
+            <p><strong>Solutions:</strong> A Phone whitelist (shipped) · B Two-factor OTP · C WhatsApp Business API verified-business · D Periodic re-authentication via biometric/KTP</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 2.2 · Pak Jun #10</div>
+            <div class="item-title">KTP-Bound Capture</div>
+            <p><strong>Pak Jun's exact framing:</strong> <em>"When there is a legal issue, he is the one responsible."</em></p>
+            <p><strong>Solutions:</strong> A One-time KTP enrollment · B Per-session KTP holding photo (Pak Jun's exact ask) · C Dukcapil API integration · D KTP + selfie + liveness combo · <strong>E KYC partnership path (Privy/Sumsub/Tilaka/Veriff)</strong> — the path most likely shipped, "a product within a product."</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 2.3 · NEW</div>
+            <div class="item-title">Voice-Print of Pelaksana</div>
+            <p><strong>Why this is a strong AutoKon-specific play:</strong> Builds on Dickson's L0b audio fingerprint — same data extraction, two layers (recycle detection + identity).</p>
+            <p><strong>Solutions:</strong> A Voice OTP (Pelaksana reads server-generated phrase) · B Passive voice signature · C Background ambient-sound consistency</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 2.4</div>
+            <div class="item-title">Liveness Check / Face Verification</div>
+            <p><strong>Solutions:</strong> A Passive liveness · B Active liveness (random gesture) · C Face-match per-session selfie · D Behavioral biometrics during walk-around · <strong>E WhatsApp-native KYC enrollment</strong> — Pelaksana sends KTP + selfie + liveness video via existing WhatsApp number at onboarding. Zero new app required.</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 2.5</div>
+            <div class="item-title">Device Attestation</div>
+            <p><strong>Solutions:</strong> A Android Play Integrity API (the dream — but requires custom AutoKon camera app) · C Soft device fingerprinting via WhatsApp metadata · D Developer-registered device whitelist</p>
+            <p><strong>Pairs with Item 1.5 Solution B</strong> — both require custom camera app. Paired commitment for PILOT-30 high-trust mode.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PILLAR 3 ========== -->
+      <div class="pillar" id="pillar-3">
+        <div class="pillar-header" onclick="togglePillar(this)">
+          <div>
+            <div class="pillar-meta">Pillar 3 · 7 items</div>
+            <div class="pillar-title">Place</div>
+            <div class="pillar-question">"Is this the actual unit it claims to be?"</div>
+          </div>
+          <div class="pillar-toggle">▼</div>
+        </div>
+        <div class="pillar-body">
+          <p><strong>Scope:</strong> Geographic identity verification. The hardest pillar for Indonesian field reality due to GPS infrastructure variance.</p>
+          <p><strong>The Indonesian-reality reframe:</strong> AutoKon doesn't need surveyor-grade GPS. AutoKon needs (1) each unit's photos to cluster at a <em>distinct</em> GPS centroid, (2) the pattern of centroids to match the siteplan's relative layout, (3) new photos to fall on or near predicted positions. <strong>Pattern beats accuracy.</strong></p>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 3.1 · Reframed</div>
+            <div class="item-title">Photo GPS <em>Consistency</em>, Not GPS Accuracy</div>
+            <p><strong>Solutions:</strong> A Project-level bbox (shipped) · <strong>B Per-unit centroid clustering</strong> — compatible with Indonesian GPS reality · C Generous bbox + heading · D IP-geolocation audit signal · E Mock Location detection</p>
+          </div>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 3.2 · Dickson L0a · shipped</div>
+            <div class="item-title">Video Site Presence</div>
+            <p><strong>Solutions:</strong> A Frame-sampled GPS (Dickson's) · B Continuous GPS metadata · C Multi-point GPS sampling start/middle/end · D Audio-environmental cross-check · E Drone-recorded baseline</p>
+          </div>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 3.3 · Dickson L4 · shipped</div>
+            <div class="item-title">Video-Photo GPS Cross-Reference</div>
+            <p><strong>Solutions:</strong> A Spatial proximity (shipped) · B Temporal alignment · C Distance from walk-path · D Heading cross-reference</p>
+          </div>
+
+          <div class="item revived">
+            <div class="item-eyebrow">Item 3.4 · REVIVED per Adrian</div>
+            <div class="item-title">Pre-Construction Baseline + Drone Reference</div>
+            <p><strong>Adrian's pushback:</strong> Big developers operate drones. Dickson's "drone fly-over impractical" rejection assumed AutoKon-coordinated flights. Revised: developer-supplied drone footage (existing for marketing) ingested by AutoKon as cross-reference.</p>
+            <p><strong>Solutions:</strong> A Smartphone 360° at kickoff · <strong>B Developer-supplied drone fly-over (revived to primary)</strong> · C BPN data integration · D Satellite snapshot · <strong>E Pre-construction siteplan as anchor</strong></p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 3.5 · Pak Jun #11</div>
+            <div class="item-title">Project-Level Geo-Tag</div>
+            <p><strong>Pak Jun's ask:</strong> <em>"We are using the coordinate geo-tagging for the unit. We need to add one more — the geo-tagging of the project."</em></p>
+            <p><strong>Solutions:</strong> A Bank inputs full address, system geocodes (respects Indonesian app convention) · B Auto-derive from unit centroid · C Hybrid bank-input + system-validates</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 3.6 · NEW</div>
+            <div class="item-title">Satellite Imagery Cross-Check</div>
+            <p><strong>Solutions:</strong> A Sentinel-2 free tier (default) · B Planet Labs commercial (premium tier) · C Google Earth Engine · D LAPAN/BRIN Indonesian satellite</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 3.7 · NEW · Adrian's pattern insight</div>
+            <div class="item-title">Siteplan-Relative Cross-Reference</div>
+            <p><strong>Adrian's insight:</strong> A siteplan defines the relative geography. If accumulated GPS centroids form a pattern matching the siteplan, the system has verified place without absolute coordinates.</p>
+            <p><strong>Solutions:</strong> A Centroid-pattern verification · B Siteplan-based unit prediction · C Auto-calibration · D Manual siteplan annotation · E Drone-overflight overhead photo as siteplan ground truth</p>
+            <p><strong>Pitch line:</strong> <em>"We verify 1000 units have 1000 distinct GPS signatures matching the siteplan layout — even if no single GPS reading is surveyor-accurate."</em></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PILLAR 4 ========== -->
+      <div class="pillar" id="pillar-4">
+        <div class="pillar-header" onclick="togglePillar(this)">
+          <div>
+            <div class="pillar-meta">Pillar 4 · 6 items</div>
+            <div class="pillar-title">Time</div>
+            <div class="pillar-question">"Was this captured now, not last week or recycled?"</div>
+          </div>
+          <div class="pillar-toggle">▼</div>
+        </div>
+        <div class="pillar-body">
+          <p><strong>Scope:</strong> Temporal verification. Dickson's home turf — audio fingerprint is the unique-IP claim. Uniquely Indonesian flavor (call-to-prayer, BMKG, equatorial daylight).</p>
+
+          <p><strong>Threat-motivation re-tier (per Adrian's insight):</strong> Within-day time fraud is low-motivation for developers. Real time-related developer fraud is week-scale replay and recycling.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Tier</th><th>Items</th><th>Why</th></tr></thead>
+              <tbody>
+                <tr><td><strong>A — High-motivation (ship hard)</strong></td><td>4.1 Audio fingerprint · 4.2 Freshness + monotonic · 4.5 Public sealing</td><td>Catches the time fraud developers actually commit</td></tr>
+                <tr><td><strong>B — Pelaksana-sloppy</strong></td><td>4.4 Behavioral baseline</td><td>Catches Pelaksana side-gigs / buddy submission</td></tr>
+                <tr><td><strong>C — Pitch theater</strong></td><td>4.3 Sun-angle · 4.6 Call-to-prayer · 4.6 BMKG weather</td><td>Memorable in demos. But developers don't have motive.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 4.1 · Dickson L0b · Tier A</div>
+            <div class="item-title">Audio Fingerprint</div>
+            <p><strong>Best single technical sentence in the entire pitch:</strong> <em>"Audio is the one layer no overlay-forgery can defeat."</em></p>
+            <p><strong>Solutions:</strong> A Direct hash (shipped) · <strong>B Spectral fingerprint (Shazam-style — immediate hardening upgrade)</strong> · C Speaker-ID · D Multi-segment · E Acoustic environment</p>
+          </div>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 4.2 · Dickson L5 · Tier A · shipped</div>
+            <div class="item-title">Photo Freshness + Monotonic</div>
+            <p><strong>Solutions:</strong> A Server timestamp (shipped) · B Overlay + freshness threshold (shipped) · C Multi-modal triangulation (overlay + server + WhatsApp) · D Per-Pelaksana monotonic (shipped) · E NTP-attested signed timestamps</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 4.3 · Tier C — pitch theater</div>
+            <div class="item-title">Sun-Angle / Shadow Consistency</div>
+            <p><strong>Pitch line:</strong> <em>"We use astronomy to verify your photo was taken at the time you claim — sun angle, shadow direction, calculated from GPS and timestamp."</em></p>
+            <p><strong>Solutions:</strong> A Astronomical sun-angle (deterministic math) · B Shadow length / direction cross-photo · C Claude-based time-of-day estimation</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 4.4 · Tier B</div>
+            <div class="item-title">Behavioral Baseline per Pelaksana</div>
+            <p><strong>Solutions:</strong> A Time-of-day pattern · B Pace-of-submission anomaly · C Linguistic patterns · D Geographic patterns · E Multi-factor composite</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 4.5 · NEW · Tier A · cross-listed Pillar 5</div>
+            <div class="item-title">External Time Anchor / Public Sealing</div>
+            <p><strong>Solutions:</strong> A OpenTimestamps (Bitcoin/Ethereum — divisive blockchain framing) · <strong>B RFC 3161 TSA (most professionally credible — what bank security teams use)</strong> · C Independent third-party (Privy/Tilaka) · D Self-published transparency log</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 4.6 · NEW · Tier C — uniquely Indonesian moat</div>
+            <div class="item-title">Indonesian-Context Cross-Correlation</div>
+            <p><strong>Solutions:</strong> A BMKG weather correlation · <strong>B Call-to-prayer (azan) audio cross-check — no competitor in the world would think of this</strong> · C Public holiday cross-reference · D Daylight-hours validation</p>
+            <p><strong>Pitch line:</strong> <em>"If the call to prayer is audible in the walk-around video, our system verifies it matches the muezzin schedule for that location."</em></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PILLAR 5 ========== -->
+      <div class="pillar" id="pillar-5">
+        <div class="pillar-header" onclick="togglePillar(this)">
+          <div>
+            <div class="pillar-meta">Pillar 5 · 6 items</div>
+            <div class="pillar-title">Chain of Custody</div>
+            <div class="pillar-question">"Once evidence enters AutoKon, can it be tampered with?"</div>
+          </div>
+          <div class="pillar-toggle">▼</div>
+        </div>
+        <div class="pillar-body">
+          <p><strong>Scope:</strong> Post-submission integrity. Different threat actors than Pillars 1-4 (insiders, hackers, post-hoc tampering).</p>
+          <p><strong>Adrian's calibration:</strong> Pillar 5 is the <em>audit-credibility narrative</em>, not volume defense. Banks audit chain-of-custody during due diligence and incident reviews. Most Indonesian fraud is low-tech (Pillar 1 Item 1.6); Pillar 5 protects against the rare-but-catastrophic.</p>
+
+          <div class="item shipped">
+            <div class="item-eyebrow">Item 5.1 · Shipped</div>
+            <div class="item-title">Multi-Step Approval Workflow</div>
+            <p><strong>Solutions:</strong> A Sequential 3-step (Dickson's, shipped) · B Quorum-based for high-value · C Random sampling with deeper review · D AI-assisted reviewer queue prioritization (uses Dickson's tier classification)</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 5.2 · NEW</div>
+            <div class="item-title">Tamper-Evident Hash Chain</div>
+            <p><strong>Solutions:</strong> A Per-project Merkle tree · B Per-unit hash chain (blockchain-style) · C Append-only event log (event-sourcing) · <strong>D WORM storage (Phase-0 immediate win — config change ships in a day)</strong></p>
+            <p><strong>D is the highest cost-effectiveness in the entire R&amp;D landscape.</strong> <em>"All evidence files are stored on Write-Once-Read-Many infrastructure with regulatory-grade retention. Even AutoKon admins cannot delete evidence."</em></p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 5.3 · Cross-listed with 4.5</div>
+            <div class="item-title">Periodic Public Sealing</div>
+            <p><strong>RFC 3161 TSA is most professionally credible for bank security teams.</strong> Blockchain framing is divisive — read the room.</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 5.4 · Dickson's Open Q5</div>
+            <div class="item-title">SM Digital Sign-Off / Witness Attestation</div>
+            <p><strong>Dickson's exact ask:</strong> <em>"Saksi: Anda lihat kerja ini hari ini? Ya/Tidak"</em></p>
+            <p><strong>Solutions:</strong> <strong>A Botpress yes/no witness prompt — 10-minute Botpress flow change, ships next sprint</strong> · B SM-side dashboard click-to-confirm · C Periodic SM affidavit · D Periodic SM physical site visit</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 5.5 · NEW</div>
+            <div class="item-title">Cryptographic Per-Signer Signing</div>
+            <p><strong>Solutions:</strong> A Server-managed keys · B Mobile-device-bound keys · C PKI public registry (signatures independently verifiable) · D HSM keys</p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 5.6 · NEW</div>
+            <div class="item-title">Immutable Audit Log</div>
+            <p><strong>Solutions:</strong> A Postgres temporal tables (immediate baseline) · B Hash-chained audit table · C Database WAL export to immutable storage</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PILLAR 6 ========== -->
+      <div class="pillar" id="pillar-6">
+        <div class="pillar-header" onclick="togglePillar(this)">
+          <div>
+            <div class="pillar-meta">Pillar 6 · 5 items</div>
+            <div class="pillar-title">Independent Verification</div>
+            <div class="pillar-question">"Do you ever rely on something other than your own software?"</div>
+          </div>
+          <div class="pillar-toggle">▼</div>
+        </div>
+        <div class="pillar-body">
+          <p><strong>Scope:</strong> Positioning layer — the <em>"we don't only trust ourselves"</em> narrative.</p>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 6.1 · Indonesian standard</div>
+            <div class="item-title">KJPP Physical Inspection</div>
+            <p><strong>Solutions:</strong> A KJPP at fixed milestones (status quo) · <strong>B AutoKon-routed KJPP triggers (uses existing tier classification — flagship pitch line)</strong> · C Random-sample KJPP</p>
+            <p><strong>Pitch line:</strong> <em>"AutoKon makes KJPP 10x more focused. Software pre-screens; KJPP inspects what software flags as risky."</em></p>
+          </div>
+
+          <div class="item revived">
+            <div class="item-eyebrow">Item 6.2 · REVIVED · uniquely Indonesian</div>
+            <div class="item-title">RT/RW or Lurah Witness Signature</div>
+            <p><strong>Indonesian context:</strong> RT (neighborhood unit head), RW (community unit head), Lurah (village head) — local officials who know what's actually being built nearby.</p>
+            <p><strong>Solutions:</strong> A RT/RW witness at major milestones · B Lurah-level witness · C RT/RW + photo verification combo</p>
+            <p><strong>No US/EU competitor would think to leverage RT/RW.</strong> Becomes positioning differentiator.</p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 6.3 · Cross-listed with 3.6</div>
+            <div class="item-title">Satellite Imagery Cross-Check</div>
+            <p>Pillar 6-specific framing: <em>"We don't just trust our own field data — we cross-check against EU Space Agency satellite imagery."</em></p>
+          </div>
+
+          <div class="item">
+            <div class="item-eyebrow">Item 6.4 · Cross-listed with 3.4</div>
+            <div class="item-title">Drone Overflight</div>
+            <p>Pillar 6-specific framing: <em>"AutoKon ingests the developer's drone footage as independent aerial verification."</em></p>
+          </div>
+
+          <div class="item new">
+            <div class="item-eyebrow">Item 6.5 · NEW</div>
+            <div class="item-title">Independent Third-Party Signing Service</div>
+            <p><strong>Pitch line:</strong> <em>"Bank PIC signatures go through Privy / eMeterai — the same e-signature infrastructure your KYC team uses for retail account opening."</em></p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Section 4: Master Item Table -->
+    <section id="section-4">
+      <h1>§4 Master Item Table</h1>
+      <p>Every item across 6 pillars in a single table, sortable by threat motivation and ship priority.</p>
+      <p style="font-size: 13px; color: var(--slate-500); font-style: italic;">For full table with all dimensions (cost, engineering, friction, etc.), see the markdown source.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Item</th><th>Pillar</th><th>Phase</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1.1</td><td>Photo recycling detection</td><td>Auth</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>1.2</td><td>Cross-photo consistency</td><td>Auth</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>1.3</td><td>Edit/Photoshop forgery (ELA)</td><td>Auth</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>1.4</td><td>AI-generated detection</td><td>Auth</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>1.5</td><td>Trusted-source overlay</td><td>Auth</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td><strong>1.6</strong></td><td><strong>Low-tech consumer-app fraud</strong></td><td>Auth</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>2.1</td><td>Phone-number binding</td><td>Identity</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>2.2</td><td>KTP-bound capture</td><td>Identity</td><td><span class="tag tag-phase1">P1</span></td><td></td></tr>
+            <tr><td>2.3</td><td>Voice-print Pelaksana</td><td>Identity</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>2.4</td><td>Liveness check</td><td>Identity</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>2.5</td><td>Device attestation</td><td>Identity</td><td><span class="tag tag-phase2">P2</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>3.1</td><td>Photo GPS consistency</td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>3.2</td><td>Video site presence</td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>3.3</td><td>Video-photo GPS cross-ref</td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>3.4</td><td>Pre-construction baseline + drone</td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-revived">Revived</span></td></tr>
+            <tr><td>3.5</td><td>Project-level geo-tag</td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>3.6</td><td>Satellite imagery cross-check</td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td><strong>3.7</strong></td><td><strong>Siteplan-relative cross-ref</strong></td><td>Place</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>4.1</td><td>Audio fingerprint</td><td>Time</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>4.2</td><td>Photo freshness + monotonic</td><td>Time</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>4.3</td><td>Sun-angle / shadow</td><td>Time</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>4.4</td><td>Behavioral baseline</td><td>Time</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>4.5</td><td>External time anchor</td><td>Time</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>4.6</td><td>Indonesian-context</td><td>Time</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>5.1</td><td>Multi-step approval</td><td>Custody</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-shipped">Shipped</span></td></tr>
+            <tr><td>5.2</td><td>Tamper-evident hash chain</td><td>Custody</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>5.3</td><td>Periodic public sealing</td><td>Custody</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>5.4</td><td>SM digital sign-off</td><td>Custody</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>5.5</td><td>Crypto per-signer signing</td><td>Custody</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>5.6</td><td>Immutable audit log</td><td>Custody</td><td><span class="tag tag-phase0">P0</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+            <tr><td>6.1</td><td>KJPP physical inspection</td><td>Indep</td><td><span class="tag tag-phase0">P0</span></td><td></td></tr>
+            <tr><td>6.2</td><td>RT/RW witness signature</td><td>Indep</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-revived">Revived</span></td></tr>
+            <tr><td>6.5</td><td>Independent third-party signing</td><td>Indep</td><td><span class="tag tag-phase1">P1</span></td><td><span class="tag tag-new">NEW</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 5: Phase ladder -->
+    <section id="section-5">
+      <h1>§5 Recommended Ship Priority</h1>
+
+      <div class="phase phase-0">
+        <h3>Phase 0 — Ship Now</h3>
+        <p>High-motivation defenses + Phase-0 immediate wins. Already-shipped items + items that ship in days.</p>
+        <p><strong>Standout immediate wins:</strong></p>
+        <ul>
+          <li><strong>1.6 A-D</strong> — Low-tech consumer-app fraud detectors (JPEG quantization, IG-Story, screenshot, photo-of-screen). Highest-leverage new addition.</li>
+          <li><strong>5.2 D</strong> — WORM storage config change. Ships in a day. Highest cost-effectiveness ratio in the brief.</li>
+          <li><strong>5.4 A</strong> — Botpress witness yes/no prompt. 10-minute flow change.</li>
+          <li><strong>3.7 A + B</strong> — Centroid-pattern verification + siteplan-based prediction. Adrian's pattern insight applied.</li>
+          <li><strong>4.1 B</strong> — Spectral fingerprint (Shazam-style) hardening upgrade to Dickson's existing audio fingerprint.</li>
+          <li><strong>6.1 B</strong> — AutoKon-routed KJPP triggers using Dickson's existing tier classification.</li>
+        </ul>
+      </div>
+
+      <div class="phase phase-1">
+        <h3>Phase 1 — PILOT-30 Commitments</h3>
+        <p>Ship within 30 days of first signed bank pilot. Bank's premium-tier features.</p>
+        <ul>
+          <li>2.2 B + E — Per-session KTP + KYC vendor partnership</li>
+          <li>2.4 A + E — Passive liveness + WhatsApp-native KYC enrollment</li>
+          <li>3.4 B — Developer-supplied drone fly-over</li>
+          <li>4.5 B + 5.3 B — RFC 3161 TSA public sealing</li>
+          <li>4.6 A + B — BMKG weather + call-to-prayer (Indonesian moats)</li>
+          <li>5.2 A + B — Per-project Merkle tree + per-unit hash chain</li>
+          <li>5.5 A + C — Server-managed signing + PKI public registry</li>
+          <li>6.2 A — RT/RW witness signature</li>
+          <li>6.5 — Independent third-party signing service (Privy/eMeterai)</li>
+        </ul>
+      </div>
+
+      <div class="phase phase-2">
+        <h3>Phase 2 — Roadmap (named in pitch, observed-attack-driven shipping)</h3>
+        <ul>
+          <li>1.4 B — C2PA content credentials (waits on Pelaksana phone fleet upgrade ~2027+)</li>
+          <li>2.5 A — Android Play Integrity (requires custom AutoKon camera app)</li>
+          <li>5.5 B + D — Mobile-device-bound keys + HSM keys</li>
+          <li>5.6 C — Database WAL export</li>
+        </ul>
+      </div>
+
+      <div class="phase phase-r">
+        <h3>Roadmap Reserve — Defer Until Observed</h3>
+        <ul>
+          <li>Advanced AI-generation defeats (until real attack observed)</li>
+          <li>VFX video forgery (until observed)</li>
+          <li>Cross-modality consistent forgery (until observed)</li>
+          <li>Rooted device sophisticated bypass (until observed at scale)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 6: Pitch Language -->
+    <section id="section-6">
+      <h1>§6 Pitch Language Reference</h1>
+      <p>Actual sentences for the bank pitch deck, organized by pillar.</p>
+
+      <h3>Authenticity</h3>
+      <ul>
+        <li><em>"We screen every photo against state-of-the-art AI-generation detectors — the same techniques used to catch the JAKI Pemprov DKI Gemini-watermark scandal in 2025."</em></li>
+        <li><em>"Our audio fingerprint catches recycled videos using the same forensic technique Shazam uses to identify songs."</em></li>
+        <li><em>"We catch the Microsoft-Word-export trick. We catch the Instagram Story overlay trick. We catch screenshots. We catch photos of printed photos. We've engineered for what Indonesian fraudsters actually do."</em></li>
+      </ul>
+
+      <h3>Identity</h3>
+      <ul>
+        <li><em>"Every Pelaksana is KTP-bound. We use the same KYC vendor your bank's account-opening team uses."</em></li>
+        <li><em>"Voice-print verification at every session — we know it's the registered Pelaksana speaking, not someone who borrowed their phone."</em></li>
+        <li><em>"Bank-PIC signatures go through Privy / eMeterai — the same e-signature infrastructure your KYC team uses."</em></li>
+      </ul>
+
+      <h3>Place</h3>
+      <ul>
+        <li><em>"We don't claim perfect GPS coordinates — Indonesia's archipelago infrastructure makes that impossible. We claim that 1000 units have 1000 distinct GPS signatures matching the developer-provided siteplan layout."</em></li>
+        <li><em>"We integrate the developer's existing drone monitoring as independent aerial cross-reference."</em></li>
+        <li><em>"Cross-checked against EU Space Agency Sentinel-2 satellite imagery."</em></li>
+        <li><em>"Project location is locked at bank onboarding and continuously verified against field-captured unit GPS."</em></li>
+      </ul>
+
+      <h3>Time</h3>
+      <ul>
+        <li><em>"We use astronomy to verify your photo was taken at the time you claim — sun angle, shadow direction, calculated from GPS and timestamp."</em></li>
+        <li><em>"If the call to prayer is audible in the walk-around video, our system verifies it matches the muezzin schedule for that location."</em></li>
+        <li><em>"Cross-checked against BMKG's official weather records."</em></li>
+        <li><em>"Every day, our evidence hash is sealed to an RFC 3161 Time-Stamping Authority — the same standard used for legal e-signatures."</em></li>
+      </ul>
+
+      <h3>Chain of Custody</h3>
+      <ul>
+        <li><em>"Every record in AutoKon has a complete edit history, never a silent overwrite. Every project has a Merkle tree of all evidence — any tampering becomes detectable."</em></li>
+        <li><em>"All evidence files are stored on Write-Once-Read-Many infrastructure with regulatory-grade retention. Even AutoKon admins cannot delete or overwrite evidence."</em></li>
+        <li><em>"Site managers must explicitly attest, in Bahasa, that they personally witnessed the work — captured in the audit log as a legally actionable statement."</em></li>
+      </ul>
+
+      <h3>Independent Verification</h3>
+      <ul>
+        <li><em>"AutoKon makes KJPP 10x more focused. Software pre-screens; KJPP inspects what software flags as risky."</em></li>
+        <li><em>"Local RT/RW officials witness major milestones — independent verification rooted in Indonesian community structure."</em></li>
+        <li><em>"We don't ask the bank to trust only us — Privy/eMeterai holds an independent record of every signature."</em></li>
+      </ul>
+    </section>
+
+    <!-- Section 7: Open questions -->
+    <section id="section-7">
+      <h1>§7 Open Questions for Decision</h1>
+      <ol>
+        <li><strong>Is custom AutoKon camera app on the table for PILOT-30?</strong> Cross-cuts Items 1.5B + 2.5A. Resolves device-attestation and overlay-spoofing simultaneously.</li>
+        <li><strong>KYC partnership selection.</strong> Privy vs Tilaka vs Sumsub Indonesia vs Veriff.</li>
+        <li><strong>Sentinel-2 free vs Planet Labs paid?</strong> For Phase 0 satellite imagery.</li>
+        <li><strong>OpenTimestamps (Bitcoin/Ethereum) vs RFC 3161 TSA?</strong> Public sealing language preference.</li>
+        <li><strong>WORM storage migration</strong> — Supabase storage config change to immutability mode. Engineering Phase-0 immediate win.</li>
+        <li><strong>Drone overflight ingest format.</strong> What file format do big developers' drones produce?</li>
+        <li><strong>Tier-3 review queue SLA</strong> (Dickson's open question).</li>
+        <li><strong>RT/RW witness program scope.</strong> Pilot first or default for all bank-pitch tier? Honoraria budget.</li>
+      </ol>
+    </section>
+
+    <!-- Section 8: Appendix -->
+    <section id="section-8">
+      <h1>§8 Appendix — Relationship to Existing AutoKon Work</h1>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Existing work</th><th>This brief's relationship</th></tr></thead>
+          <tbody>
+            <tr><td>Dickson's evidence integrity summary (May 1)</td><td><strong>Reorganized.</strong> 10-layer framework preserved underneath; selectively-revived rejected items added per Adrian's R&amp;D push-back.</td></tr>
+            <tr><td>Pak Jun product recommendations (Apr 24-25)</td><td>Items #2 KodeProper, #5 trigger points, #9 digital signatures, #10 KTP capture, #11 project geo-tag, #12 RBAC — all integrated.</td></tr>
+            <tr><td>autokon-app production code</td><td><strong>No PRs proposed.</strong> R&amp;D-mode means we list options; Faishal decides.</td></tr>
+            <tr><td>autokon-bank-report-pitch repo</td><td><strong>Frozen.</strong> Brief is for the bank-pitch evidence-integrity narrative but doesn't modify that repo.</td></tr>
+            <tr><td>autokon-three-audience-samples repo</td><td><strong>Cross-referenced.</strong> Audience-first framing consistent across both.</td></tr>
+            <tr><td>V2.1 Continuous Progress Snapshot</td><td><strong>Foundational primitive.</strong> Some items extend CPS's tamper-resistance.</td></tr>
+            <tr><td>F3a Design System Spec</td><td><strong>Independent.</strong> Different scope; consistent voice.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="doc-ftr">
+      <div>AutoKon · Evidence Integrity R&amp;D · Internal iteration · Pre-Faishal · 2026-05-01</div>
+      <div>v1.0 · Authored by Adrian + Claude Cowork</div>
+    </footer>
+
+  </main>
+
+</div>
+
+<script>
+  // === Pillar collapsible toggle ===
+  function togglePillar(headerEl) {
+    const pillar = headerEl.closest('.pillar');
+    pillar.classList.toggle('open');
+  }
+
+  // === TOC active highlight on scroll ===
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = document.querySelectorAll('section[id], div.pillar[id]');
+  function updateActive() {
+    let activeId = null;
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 120 && rect.bottom >= 120) activeId = s.id;
+    });
+    tocLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + activeId);
+    });
+  }
+  document.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+
+  // === Search ===
+  const searchInput = document.getElementById('search');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase().trim();
+    const items = document.querySelectorAll('.item, .pillar');
+    if (!q) {
+      items.forEach(el => {
+        el.classList.remove('hidden-by-search', 'highlighted');
+      });
+      return;
+    }
+    // Open all pillars when searching
+    document.querySelectorAll('.pillar').forEach(p => p.classList.add('open'));
+    document.querySelectorAll('.item').forEach(el => {
+      const matches = el.textContent.toLowerCase().includes(q);
+      el.classList.toggle('hidden-by-search', !matches);
+      el.classList.toggle('highlighted', matches);
+    });
+  });
+
+  // === Open Pillar 1 by default ===
+  document.querySelector('#pillar-1').classList.add('open');
+</script>
+
+</body>
+</html>
