@@ -266,10 +266,124 @@ doc.add_paragraph()
 add_heading(doc, "2.3 The 2x2", 2)
 add_styled_para(doc, "The volume-of-fraud quadrant is bottom-right (low-tech × high motivation) — that's where AutoKon must focus engineering effort.", italic=True, color=SLATE_600)
 
+add_heading(doc, "2.4 In-system vs out-of-system fraud surfaces (Dickson's reframe, May 2026)", 2)
+add_styled_para(doc, "Two fraud surfaces exist around AutoKon, and they aren't equally weighted. Dickson's reframe: lead with in-system Pelaksana fraud, treat out-of-system fabricated artifacts as residual.")
+add_styled_para(doc, "Out-of-system fraud: a bad actor produces a fake artifact OUTSIDE our pipeline (Word, IG Story, Canva, screenshot, photo-of-print) and submits the artifact through some channel. We see only the artifact at submission time. Detection is artifact-forensic. Real defenses but the long tail, not the dominant fraud surface. Item 1.6 in Pillar 1 covers this; demoted to Phase 2 residual.")
+add_styled_para(doc, "In-system Pelaksana fraud: the Pelaksana is a legitimately enrolled user — KYC passed, face in biometric DB, voice fingerprinted, phone registered, authenticated through WhatsApp Business API every session. So all the 'is this who they say they are' defenses pass. The constraint is what they capture, when, and where. This is the high-volume fraud surface, where the 6 pillars do their actual work. §3 catalogs the in-system Pelaksana fraud playbook — 10 named attack vectors and their pillar/item defenses.")
+
 doc.add_page_break()
 
-# === Section 3: The 6 Pillars ===
-add_heading(doc, "§3 The Six Pillars", 1)
+# === Section 3: The Pelaksana Attack Playbook (NEW) ===
+add_heading(doc, "§3 The Pelaksana Attack Playbook", 1)
+add_styled_para(doc, "The 6 pillars exist to defend against specific Pelaksana behaviors. This section names those behaviors — what an enrolled, authenticated Pelaksana actually does to game the system from inside the workflow — and maps each behavior to which pillar/item catches it. Lead frame for the bank pitch.")
+
+add_heading(doc, "3.1 The 10 attack vectors", 2)
+
+# Helper for each attack vector — name, what, why, manifestation, catches, strength
+playbook = [
+    ("PV-1 — Wrong-unit substitution",
+     "Pelaksana submits photos from Unit B for Unit A's spec checklist. Visually similar (same project, same stage, same finish), so vision-model spec match passes.",
+     "Pelaksana ran out of time, hadn't reached Unit A, photographed Unit B as a stand-in. Or developer-coordinated substitution to mask a delayed unit.",
+     "GPS lands inside project bbox but in wrong sub-cluster. Unit centroid drift. Photo content matches spec but unit ID metadata says A while geo-pattern says B.",
+     "Pillar 3 Item 3.7A (centroid pattern verification — Adrian's pattern insight) · Pillar 3 Item 3.7B (siteplan-based prediction) · Pillar 3 Item 3.3A (spatial proximity).",
+     "Today medium. After Phase 0 ships 3.7A+B: strong."),
+    ("PV-2 — Sister-project substitution",
+     "Pelaksana submits photos from a different KodeProper entirely — a sister project the same developer is running. Same template, same stage, similar finish.",
+     "Multiple concurrent projects + delegated workflow + Pelaksana misclassifying or fraudulently relabeling.",
+     "GPS far outside current project bbox. KodeProper mismatch. Cross-project pHash hits earlier submissions.",
+     "Pillar 3 Item 3.1A (project bbox enforcement — shipped) · Pillar 1 Item 1.1B (cross-project deep-embedding similarity).",
+     "Strong today. Phase 1 cross-project embedding closes residual."),
+    ("PV-3 — Recycled photo from previous trip",
+     "Pelaksana submits photos from yesterday / last week / last month for today's session. Real unit, real Pelaksana — old photo.",
+     "Most common Pelaksana laziness pattern. Real-world frequency: high.",
+     "pHash matches earlier project history. Sun angle inconsistent with reported timestamp. Weather doesn't match BMKG record. Audio fingerprint matches earlier walk-around video.",
+     "Pillar 1 Item 1.1A (pHash + project history — shipped) · Pillar 4 Item 4.3A (sun-angle astronomical) · Pillar 4 Item 4.6A (BMKG weather correlation, Phase 1) · Pillar 4 Item 4.1A (audio fingerprint — shipped).",
+     "Strong today (pHash). After Phase 0 sun-angle and Phase 1 weather/acoustic ship: very strong."),
+    ("PV-4 — Stage relabeling",
+     "Pelaksana submits photos taken at the SAME unit but for a previous construction stage, relabeled as the current stage. E.g., rangka-atap photos relabeled as atap photos with overlay tweak.",
+     "Skipping intermediate progress documentation; current unit isn't actually at claimed stage; cover-up of slow progress.",
+     "Photo content vs claimed-stage spec mismatch. Pelaksana overlay claims 'atap' but vision model sees 'rangka'. Earlier project history has identical photo at the earlier stage.",
+     "Pillar 1 Item 1.1A (pHash dedupe across own project history) · Pillar 1 Item 1.5A (Claude content-vs-spec match — shipped) · Pillar 1 Item 1.2D (per-spec walk-around video as cross-check).",
+     "Today medium. Vision model + per-stage history catches lazy variant; patient relabeling defeats single-vector."),
+    ("PV-5 — Still-video fake walk-around",
+     "Pelaksana stands in one spot during the walk-around video, speaks the voice OTP, waves the phone slightly. The walk-around isn't actually walking.",
+     "Lazy Pelaksana, especially in unfinished interior stages or upper floors.",
+     "Video accelerometer/IMU shows minimal motion. GPS within video shows zero displacement. Visual feature-tracking shows static scene with hand jitter only.",
+     "Pillar 1 Item 1.2D (walk-around video validation) · Pillar 4 Item 4.1A+B (audio + spectral fingerprint) · NEW Phase 0: motion-vector / optical-flow analysis on walk-around video, flags zero-displacement walks.",
+     "Today weak. Phase 0 motion-vector check (proposed below) closes it."),
+    ("PV-6 — Mock-GPS / fake-location spoofing",
+     "Pelaksana installs a mock-GPS Android app, sets fake coordinates, captures photos that report 'correct' GPS while physically not on site.",
+     "Most adversarial Pelaksana behavior. Tech-savvy minority but gross effect when used.",
+     "GPS accuracy field unrealistic. GPS-derived altitude inconsistent with project elevation. Cell-tower triangulation (when available) inconsistent. WiFi BSSID environment inconsistent. Mock-location flag set on Android (catchable via Play Integrity attestation).",
+     "Pillar 2 Item 2.5 (Android Play Integrity — Phase 2, requires custom AutoKon camera app) · Pillar 3 Item 3.2C (multi-point GPS sampling) · Pillar 3 Item 3.3B (temporal alignment) · Pillar 5 (chain of custody overlay attestation).",
+     "Today weak (no Play Integrity until custom app). Phase 0 multi-point sampling catches lazy version. Phase 2 attestation closes it fully."),
+    ("PV-7 — Delegation / buddy submission",
+     "Pelaksana hands phone to a friend, Mandor, or runner. Buddy walks the site and captures photos using Pelaksana's WhatsApp account.",
+     "Lazy Pelaksana. Side gigs. Delegation of legwork to a sub.",
+     "Voice OTP says wrong person's voice. KTP-holding selfie when triggered shows wrong face. Behavioral patterns (response times, message phrasing) inconsistent with Pelaksana's history.",
+     "Pillar 2 Item 2.3 (voice OTP + speaker identification) · Pillar 2 Item 2.4 (KTP + selfie + liveness combo, periodic) · Pillar 2 Item 2.2B (per-session KTP holding photo — Pak Jun's ask) · Pillar 4 Item 4.4 (behavioral baselines).",
+     "Today weak (voice OTP exists but speaker-ID not always on). After Phase 0 voice OTP + Phase 1 periodic KTP+selfie: strong."),
+    ("PV-8 — Photo-of-render / photo-of-similar-finished-unit",
+     "Pelaksana photographs a marketing brochure render, a mock-up unit, or a different developer's finished show-unit, and submits as their own.",
+     "Pre-construction or behind-schedule developer wants to claim progress that doesn't exist yet.",
+     "Render has impossible perfect lighting, no construction debris, no Pelaksana voice. Mock-up has GPS mismatch. Sun-angle doesn't match render's lighting direction.",
+     "Pillar 1 Item 1.4A (AI/render detection) · Pillar 1 Item 1.3A (ELA — visual perfection looks suspicious) · Pillar 3 Item 3.7A+B (centroid pattern + siteplan prediction) · Pillar 4 Item 4.3A (sun-angle inconsistency).",
+     "Strong — multiple cross-vectors fail simultaneously."),
+    ("PV-9 — Schedule fraud (front-loaded capture, distributed submission)",
+     "Pelaksana visits site once, captures all photos for the week's worth of sessions in one trip, then submits photos in batches across multiple days to fake schedule distribution.",
+     "Pelaksana saving travel time. Geographic dispersion of Indonesian projects makes daily site visits expensive. Adrian's brainstorm called this out: within-day time-shift fraud isn't motivated, but cross-day batching IS.",
+     "All photos captured within a 30-min window per EXIF + sun-angle + weather. Submission timestamps spread across a week. Audio fingerprints share environment-noise signature. Sun positions impossibly consistent given claimed days.",
+     "Pillar 4 Item 4.2C (multi-modal time triangulation) · Pillar 4 Item 4.3A (sun-angle astronomical) · Pillar 4 Item 4.6A (BMKG weather correlation, Phase 1) · Pillar 4 Item 4.1E (acoustic environment fingerprint, Phase 1).",
+     "Strong with Phase 0 sun-angle and Phase 1 weather/acoustic cross-checks."),
+    ("PV-10 — Coverage fraud (only-the-good-parts photography)",
+     "Pelaksana captures the photo-positive corners of a unit (clean walls, finished doors) and skips defective areas, claiming 'obscured' or providing partial coverage.",
+     "Cover up sloppy contractor work. Pelaksana paid by developer (or Mandor, or sub) to look the other way on defects.",
+     "Walk-around video shows defects that don't appear in any per-spec photo. Spec checklist coverage suspicious (specific items always 'obscured'). Per-spec photo angles all favor good views.",
+     "NEW Phase 0: spec-coverage scoring — every spec item must have a photo showing the relevant feature; 'obscured' requires SM second-photo + reason · Pillar 1 Item 1.2D (walk-around video as completeness anchor) · Pillar 6 Item 6.2A (RT/RW witness — or SM physical site visit) for systematic coverage gaming.",
+     "Today weak. Phase 0 spec-coverage scoring closes most variants; systematic coverage gaming still requires witness/SM cross-check."),
+]
+for name, what, why, manifest, catches, strength in playbook:
+    add_heading(doc, name, 3)
+    add_styled_para(doc, "What: " + what)
+    add_styled_para(doc, "Why: " + why)
+    add_styled_para(doc, "Manifestation: " + manifest)
+    add_styled_para(doc, "Catches: " + catches)
+    add_styled_para(doc, "Strength: " + strength, italic=True, color=SLATE_600)
+
+add_heading(doc, "3.2 Defense matrix at a glance", 2)
+add_table(doc,
+    headers=["Vector", "Primary defense", "Phase", "Today", "After P0+P1"],
+    rows=[
+        ("PV-1 Wrong-unit", "Pillar 3.7A+B siteplan-relative", "0", "Medium", "Strong"),
+        ("PV-2 Sister-project", "Pillar 3.1A bbox + 1.1B cross-project", "0/1", "Strong", "Strong"),
+        ("PV-3 Recycled photo", "Pillar 1.1A pHash + 4.3A sun + 4.6A weather", "0/1", "Strong", "Very strong"),
+        ("PV-4 Stage relabeling", "Pillar 1.1A pHash + 1.5A vision spec match", "0", "Medium", "Med-strong"),
+        ("PV-5 Still-video fake walk", "Pillar 1.2D + NEW motion-vector", "0", "Weak", "Strong"),
+        ("PV-6 Mock-GPS spoofing", "Pillar 3.2C + 2.5 Play Integrity", "0/2", "Weak", "Med → Strong"),
+        ("PV-7 Delegation / buddy", "Pillar 2.3 voice OTP + 2.4 selfie", "0/1", "Weak", "Strong"),
+        ("PV-8 Photo-of-render", "Pillar 1.4A + 3.7 + 4.3", "0", "Medium", "Strong"),
+        ("PV-9 Front-loaded capture", "Pillar 4.3 + 4.6 + 4.1E", "0/1", "Medium", "Strong"),
+        ("PV-10 Coverage fraud", "NEW spec-coverage scoring + 1.2D", "0", "Weak", "Med-strong"),
+    ],
+    col_widths=[1.6, 2.4, 0.6, 0.7, 1.0])
+
+doc.add_paragraph()
+
+add_heading(doc, "3.3 What this reframes about ship priority", 2)
+add_styled_para(doc, "Three changes follow directly from leading with the in-system Pelaksana attack model:")
+add_bullet(doc, "NEW Phase 0 — motion-vector analysis on walk-around videos (PV-5 defense). Trivial to implement using OpenCV optical flow on the existing video pipeline.")
+add_bullet(doc, "NEW Phase 0 — spec-coverage scoring (PV-10 defense). Every spec item gets a binary present/absent; 'obscured' requires SM second-photo + reason.")
+add_bullet(doc, "Demote Item 1.6 (out-of-system consumer-app detectors) from Phase 0 to Phase 2 residual. These detectors address the long tail of fabricated artifacts but not the main fraud surface.")
+
+add_heading(doc, "3.4 Pitch language", 2)
+add_styled_para(doc, "Lead with attacker behavior, not engineering layers. The bank is buying defense against fraud — they want to hear the names of the fraud, then how AutoKon catches each one.")
+add_styled_para(doc, "\"Indonesian construction-progress fraud isn't sophisticated AI forgery. It's a Pelaksana standing in the parking lot of a sister project, photographing similar-looking units, and claiming Unit A's progress. Or recycling photos from last week's trip. Or handing the phone to a runner. Our 6 pillars are organized around 10 named in-system fraud patterns we have seen, and the signal that catches each one.\"", italic=True)
+add_styled_para(doc, "\"For each pattern, we have at least one Phase 0 defense that catches the lazy version, and at least one PILOT-30 commitment that hardens against the patient version.\"", italic=True)
+
+doc.add_page_break()
+
+# === Section 4: The 6 Pillars ===
+add_heading(doc, "§4 The Six Pillars", 1)
 add_styled_para(doc, "Each pillar opens with the bank's question, names its scope, and walks each item with: threat description, threat motivation, Dickson's existing solution if any, 2-5 proposed solutions with multi-dimensional +/-, and a recommended take.")
 
 # Pillar 1: Authenticity
@@ -277,10 +391,10 @@ add_heading(doc, "Pillar 1 — Authenticity", 2)
 add_styled_para(doc, "Bank's question: \"Is this photo real, or is it fabricated, edited, or AI-generated?\"", italic=True)
 add_styled_para(doc, "Six items: Photo recycling detection (1.1), Cross-photo consistency (1.2), Edit/Photoshop forgery via ELA (1.3), AI-generated photo detection (1.4), Trusted-source overlay validation (1.5), and Low-tech consumer-app fraud detection (1.6 — NEW).")
 
-add_eyebrow(doc, "Item 1.6 (NEW) — highest-leverage addition")
-add_heading(doc, "Low-Tech Indonesian Consumer-App Fraud Detection", 3)
-add_styled_para(doc, "Threat: The dominant Indonesian fraud profile per Adrian's brainstorm. Specific named attacks: PDF-Word-export-reedit-reexport · Instagram Story / IG Layout overlay · Screenshot-of-photo / photo-of-screen · Photo-of-printed-photo · WhatsApp re-share / forward washing · Basic phone-editor manipulation (PicsArt, Canva).")
-add_styled_para(doc, "Threat motivation: Highest. Low technical barrier × high economic incentive = the canonical Indonesian fraud profile.")
+add_eyebrow(doc, "Item 1.6 — DEMOTED to Phase 2 residual (May 2026 reframe)")
+add_heading(doc, "Out-of-System Consumer-App Fraud Detection (residual)", 3)
+add_styled_para(doc, "Status (revised May 2026 per Dickson's reframe): Phase 2 residual detection. These detectors address out-of-system fabricated artifacts — fraud produced in tools we don't see (Word, IG Story, Canva, screenshot, photo-of-print) and submitted as a result. Real defenses but the long tail, not the dominant fraud surface. AutoKon's primary fraud surface is in-system Pelaksana behavior — see §3 Pelaksana Attack Playbook. Engineering budget reallocates to PV-5 motion-vector analysis and PV-10 spec-coverage scoring for Phase 0.", italic=True, color=SLATE_600)
+add_styled_para(doc, "Threat — out-of-system fabricated artifacts: PDF-Word-export-reedit-reexport · Instagram Story / IG Layout overlay · Screenshot-of-photo / photo-of-screen · Photo-of-printed-photo · WhatsApp re-share / forward washing · Basic phone-editor manipulation (PicsArt, Canva).")
 add_styled_para(doc, "Solutions:")
 add_bullet(doc, "A. JPEG quantization-table fingerprinting — catches Word + phone-app re-encodes. Pitch line: \"We can detect when a photo was last saved by Microsoft Word, Photoshop, Instagram, or other consumer apps.\"")
 add_bullet(doc, "B. IG-Story artifact detection — catches the Instagram Story overlay trick. Pitch: \"We catch the Instagram Story overlay trick.\"")
@@ -288,7 +402,7 @@ add_bullet(doc, "C. Screenshot detection — image dimensions match phone screen
 add_bullet(doc, "D. Photo-of-screen detection — moiré pattern + reflection analysis.")
 add_bullet(doc, "E. Photo-of-print detection — paper texture + color cast.")
 add_bullet(doc, "F. WhatsApp re-share detection — compression signature + EXIF stripping.")
-add_styled_para(doc, "Take: A + B + C + D should be Phase 0 priority.", bold=True, color=SLATE_900)
+add_styled_para(doc, "Take (revised): Originally Phase 0; now Phase 2 residual. Ship A+B+C+D opportunistically as cheap insurance against the out-of-system fabrication tail. Phase 0 budget redirects to PV-5 motion-vector analysis and PV-10 spec-coverage scoring (in-system Pelaksana defenses).", bold=True, color=SLATE_900)
 
 # Pillar 2: Identity
 add_heading(doc, "Pillar 2 — Identity", 2)
@@ -338,7 +452,7 @@ add_styled_para(doc, "Five items: KJPP physical inspection (6.1, Indonesian stan
 doc.add_page_break()
 
 # === Section 4: Master Item Table ===
-add_heading(doc, "§4 Master Item Table", 1)
+add_heading(doc, "§5 Master Item Table", 1)
 add_styled_para(doc, "Every item across 6 pillars in a single table.")
 add_table(doc,
     headers=["#", "Item", "Pillar", "Phase", "Status"],
@@ -381,16 +495,18 @@ add_table(doc,
 doc.add_page_break()
 
 # === Section 5: Recommended Ship Priority ===
-add_heading(doc, "§5 Recommended Ship Priority", 1)
+add_heading(doc, "§6 Recommended Ship Priority", 1)
 
 add_heading(doc, "Phase 0 — Ship Now", 2)
-add_styled_para(doc, "Highest-leverage immediate wins:")
-add_bullet(doc, "1.6 A-D — Low-tech consumer-app fraud detectors (JPEG quantization, IG-Story, screenshot, photo-of-screen). Highest-leverage new addition.")
+add_styled_para(doc, "Highest-leverage immediate wins (revised post-§3 reframe):")
+add_bullet(doc, "NEW — Motion-vector / optical-flow analysis on walk-around videos. Catches PV-5 still-video fake walks. Trivial to implement on existing video pipeline.")
+add_bullet(doc, "NEW — Spec-coverage scoring. Catches PV-10 coverage fraud — every spec item present/absent + 'obscured' requires SM second-photo + reason.")
 add_bullet(doc, "5.2 D — WORM storage config change. Ships in a day. Highest cost-effectiveness ratio in the brief.")
 add_bullet(doc, "5.4 A — Botpress witness yes/no prompt. 10-minute flow change.")
-add_bullet(doc, "3.7 A + B — Centroid-pattern verification + siteplan-based prediction. Adrian's pattern insight applied.")
+add_bullet(doc, "3.7 A + B — Centroid-pattern verification + siteplan-based prediction. Adrian's pattern insight. Catches PV-1 wrong-unit substitution.")
 add_bullet(doc, "4.1 B — Spectral fingerprint (Shazam-style) hardening upgrade to existing audio fingerprint.")
 add_bullet(doc, "6.1 B — AutoKon-routed KJPP triggers using existing tier classification.")
+add_styled_para(doc, "(Item 1.6 A-D consumer-app fraud detectors moved from Phase 0 to Phase 2 residual per Dickson's reframe — see §3.3.)", italic=True, color=SLATE_600)
 
 add_heading(doc, "Phase 1 — PILOT-30 Commitments", 2)
 add_styled_para(doc, "Ship within 30 days of first signed bank pilot.")
@@ -402,6 +518,7 @@ add_bullet(doc, "Independent: 6.2 A — RT/RW witness · 6.5 — Privy/eMeterai 
 
 add_heading(doc, "Phase 2 — Roadmap", 2)
 add_bullet(doc, "1.4 B — C2PA content credentials (waits on phone fleet upgrade ~2027+)")
+add_bullet(doc, "1.6 A-D residual — JPEG quantization + IG-Story + screenshot + photo-of-screen detection (out-of-system fabrication tail; ship opportunistically, do not lead pitch)")
 add_bullet(doc, "2.5 A — Android Play Integrity (requires custom AutoKon camera app)")
 add_bullet(doc, "1.1 C — PRNU sensor fingerprint (theoretical for Indonesian field)")
 add_bullet(doc, "5.5 B+D — Mobile-device-bound keys + HSM keys")
@@ -416,7 +533,7 @@ add_bullet(doc, "Rooted device sophisticated bypass — until observed at scale"
 doc.add_page_break()
 
 # === Section 6: Pitch Language ===
-add_heading(doc, "§6 Pitch Language Reference", 1)
+add_heading(doc, "§7 Pitch Language Reference", 1)
 add_styled_para(doc, "Actual sentences for the bank pitch deck, organized by pillar.")
 
 pitch = [
@@ -468,7 +585,7 @@ for pillar, lines in pitch:
 doc.add_page_break()
 
 # === Section 7: Open Questions ===
-add_heading(doc, "§7 Open Questions for Decision", 1)
+add_heading(doc, "§8 Open Questions for Decision", 1)
 add_styled_para(doc, "Eight decisions before engineering can proceed cleanly.")
 opens = [
     "Is custom AutoKon camera app on the table for PILOT-30? Cross-cuts Items 1.5B + 2.5A. Resolves device-attestation and overlay-spoofing simultaneously. Premium-tier feature.",
@@ -484,7 +601,7 @@ for o in opens:
     add_numbered(doc, o)
 
 # === Section 8: Appendix ===
-add_heading(doc, "§8 Appendix — Relationship to Existing AutoKon Work", 1)
+add_heading(doc, "§9 Appendix — Relationship to Existing AutoKon Work", 1)
 add_table(doc,
     headers=["Existing work", "This brief's relationship"],
     rows=[

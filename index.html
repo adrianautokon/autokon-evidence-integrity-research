@@ -342,8 +342,9 @@
       <li><a href="#document-map">Document Map</a></li>
       <li><a href="#section-1">§1 Locked Principles</a></li>
       <li><a href="#section-2">§2 Two Cross-Cutting Lenses</a></li>
+      <li><a href="#section-3">§3 Pelaksana Attack Playbook</a></li>
 
-      <li class="group">§3 The Six Pillars</li>
+      <li class="group">§4 The Six Pillars</li>
       <li><a href="#pillar-1">P1 — Authenticity</a></li>
       <li><a href="#pillar-2">P2 — Identity</a></li>
       <li><a href="#pillar-3">P3 — Place</a></li>
@@ -352,11 +353,11 @@
       <li><a href="#pillar-6">P6 — Independent Verification</a></li>
 
       <li class="group">Reference</li>
-      <li><a href="#section-4">§4 Master Item Table</a></li>
-      <li><a href="#section-5">§5 Recommended Ship Priority</a></li>
-      <li><a href="#section-6">§6 Pitch Language</a></li>
-      <li><a href="#section-7">§7 Open Questions</a></li>
-      <li><a href="#section-8">§8 Appendix</a></li>
+      <li><a href="#section-5">§5 Master Item Table</a></li>
+      <li><a href="#section-6">§6 Recommended Ship Priority</a></li>
+      <li><a href="#section-7">§7 Pitch Language</a></li>
+      <li><a href="#section-8">§8 Open Questions</a></li>
+      <li><a href="#section-9">§9 Appendix</a></li>
     </ul>
   </aside>
 
@@ -395,13 +396,14 @@
           <tbody>
             <tr><td><strong>TL;DR</strong></td><td>1</td><td>Above.</td></tr>
             <tr><td><strong>§1 Locked principles</strong></td><td>2</td><td>Two non-negotiable principles inherited from v3.3 reports-roadmap PRD + Pak Jun memo.</td></tr>
-            <tr><td><strong>§2 Two cross-cutting lenses</strong></td><td>2</td><td>Threat motivation + tech-savviness. The 2x2 that organizes everything.</td></tr>
-            <tr><td><strong>§3 The 6 pillars</strong></td><td>18</td><td>Main body. Each pillar: bank's question, items with threat description + threat motivation + Dickson's existing solution if any + 2–5 solutions with multi-dimensional +/-.</td></tr>
-            <tr><td><strong>§4 Master item table</strong></td><td>2</td><td>Every item across 6 pillars in a single sortable table.</td></tr>
-            <tr><td><strong>§5 Recommended ship priority</strong></td><td>2</td><td>Phase 0 / Phase 1 / Phase 2 / Roadmap reserve.</td></tr>
-            <tr><td><strong>§6 Pitch language reference</strong></td><td>2</td><td>Actual sentences for the bank pitch deck.</td></tr>
-            <tr><td><strong>§7 Open questions</strong></td><td>1</td><td>What Dickson + Faishal need to decide.</td></tr>
-            <tr><td><strong>§8 Appendix</strong></td><td>1</td><td>Relationship to existing AutoKon work.</td></tr>
+            <tr><td><strong>§2 Two cross-cutting lenses</strong></td><td>2</td><td>Threat motivation + tech-savviness + in-system vs out-of-system fraud surfaces (Dickson's reframe).</td></tr>
+            <tr><td><strong>§3 Pelaksana Attack Playbook</strong></td><td>4</td><td>10 named in-system Pelaksana fraud vectors mapped to which pillar/item catches each. Lead frame for the bank pitch.</td></tr>
+            <tr><td><strong>§4 The 6 pillars</strong></td><td>18</td><td>Main body. Each pillar: bank's question, items with threat description + threat motivation + Dickson's existing solution if any + 2–5 solutions with multi-dimensional +/-.</td></tr>
+            <tr><td><strong>§5 Master item table</strong></td><td>2</td><td>Every item across 6 pillars in a single sortable table.</td></tr>
+            <tr><td><strong>§6 Recommended ship priority</strong></td><td>2</td><td>Phase 0 / Phase 1 / Phase 2 / Roadmap reserve.</td></tr>
+            <tr><td><strong>§7 Pitch language reference</strong></td><td>2</td><td>Actual sentences for the bank pitch deck.</td></tr>
+            <tr><td><strong>§8 Open questions</strong></td><td>1</td><td>What Dickson + Faishal need to decide.</td></tr>
+            <tr><td><strong>§9 Appendix</strong></td><td>1</td><td>Relationship to existing AutoKon work.</td></tr>
           </tbody>
         </table>
       </div>
@@ -480,11 +482,131 @@
                          ▼
                  Tech-unsavvy attacker</pre>
       <p><strong>The volume-of-fraud quadrant is bottom-right</strong> (low-tech × high motivation). That's where AutoKon must focus engineering effort.</p>
+
+      <h2 style="margin-top: 32px;">2.4 In-system vs out-of-system fraud surfaces (Dickson's reframe, May 2026)</h2>
+      <p>Two fraud surfaces exist around AutoKon, and they aren't equally weighted. Dickson's reframe: lead with <strong>in-system Pelaksana fraud</strong>, treat <strong>out-of-system fabricated artifacts</strong> as residual.</p>
+      <p><strong>Out-of-system fraud.</strong> A bad actor produces a fake artifact OUTSIDE our pipeline — opens an existing BASTP PDF in Microsoft Word, swaps photos, re-exports. Or pulls a photo from Google, runs it through Canva, exports. Or screenshots someone else's submission. Then submits the artifact through some channel. We see only the artifact at submission time, not the manipulation. Detection is artifact-forensic: JPEG quantization tables, IG-Story compression signatures, paper-texture, screen-resolution match. Real defenses, but the long tail — not the dominant fraud surface. Item 1.6 in Pillar 1 covers this; demoted to Phase 2 residual.</p>
+      <p><strong>In-system Pelaksana fraud.</strong> The Pelaksana is a legitimately enrolled user. KYC passed. Face in our biometric DB. Voice fingerprint captured. Phone registered. Authenticated through WhatsApp Business API every session. So all the <em>"is this who they say they are"</em> defenses pass — those checks are not the constraint. <strong>The constraint is what they capture, when, and where.</strong> This is the high-volume fraud surface, and it is where the 6 pillars do their actual work.</p>
+      <p>§3 catalogs the in-system Pelaksana fraud playbook — 10 named attack vectors and their pillar/item defenses. The 6 pillars in §4 then walk every defense in detail.</p>
     </section>
 
-    <!-- Section 3: The Six Pillars -->
+    <!-- Section 3: The Pelaksana Attack Playbook (NEW) -->
     <section id="section-3">
-      <h1>§3 The Six Pillars</h1>
+      <h1>§3 The Pelaksana Attack Playbook</h1>
+      <p>The 6 pillars exist to defend against specific Pelaksana behaviors. This section names those behaviors — what an enrolled, authenticated Pelaksana actually does to game the system from inside the workflow — and maps each behavior to which pillar/item catches it.</p>
+      <p>The framing is deliberate. A bank pitch lands harder when AutoKon names the fraud out loud and walks the defenses, rather than presenting an engineering layer cake the bank has to translate.</p>
+
+      <h2>3.1 The 10 attack vectors</h2>
+      <p style="font-size: 13px; color: var(--slate-500); font-style: italic;">Each vector is named with a PV-N tag, described, motivated, mapped to its primary pillar/item defense, and labeled with strength today vs after Phase 0+1 ships.</p>
+
+      <h3>PV-1 — Wrong-unit substitution</h3>
+      <p><strong>What:</strong> Pelaksana submits photos from Unit B for Unit A's spec checklist. Visually similar (same project, same stage, same finish), so vision-model spec match passes.</p>
+      <p><strong>Why:</strong> Pelaksana ran out of time, hadn't reached Unit A, photographed Unit B as a stand-in. Or developer-coordinated substitution to mask a delayed unit.</p>
+      <p><strong>Manifestation:</strong> GPS lands inside project bbox but in wrong sub-cluster. Unit centroid drift. Photo content matches spec but unit ID metadata says A while geo-pattern says B.</p>
+      <p><strong>Catches:</strong> Pillar 3 Item 3.7A (centroid pattern verification — Adrian's pattern insight) · Pillar 3 Item 3.7B (siteplan-based prediction) · Pillar 3 Item 3.3A (spatial proximity).</p>
+      <p><strong>Strength:</strong> Today medium. After Phase 0 ships 3.7A+B: strong.</p>
+
+      <h3>PV-2 — Sister-project substitution</h3>
+      <p><strong>What:</strong> Pelaksana submits photos from a different KodeProper entirely — a sister project the same developer is running. Same template, same stage, similar finish.</p>
+      <p><strong>Why:</strong> Multiple concurrent projects + delegated workflow + Pelaksana misclassifying or fraudulently relabeling.</p>
+      <p><strong>Manifestation:</strong> GPS far outside current project bbox. KodeProper mismatch. Cross-project pHash hits earlier submissions.</p>
+      <p><strong>Catches:</strong> Pillar 3 Item 3.1A (project bbox enforcement — shipped) · Pillar 1 Item 1.1B (cross-project deep-embedding similarity).</p>
+      <p><strong>Strength:</strong> Strong today. Phase 1 cross-project embedding closes residual.</p>
+
+      <h3>PV-3 — Recycled photo from previous trip</h3>
+      <p><strong>What:</strong> Pelaksana submits photos from yesterday / last week / last month for today's session. Real unit, real Pelaksana — old photo.</p>
+      <p><strong>Why:</strong> Most common Pelaksana laziness pattern. Real-world frequency: high.</p>
+      <p><strong>Manifestation:</strong> pHash matches earlier project history. Sun angle inconsistent with reported timestamp. Weather doesn't match BMKG record. Audio fingerprint matches earlier walk-around video.</p>
+      <p><strong>Catches:</strong> Pillar 1 Item 1.1A (pHash + project history — shipped) · Pillar 4 Item 4.3A (sun-angle astronomical) · Pillar 4 Item 4.6A (BMKG weather correlation, Phase 1) · Pillar 4 Item 4.1A (audio fingerprint — shipped).</p>
+      <p><strong>Strength:</strong> Strong today (pHash). After Phase 0 sun-angle and Phase 1 weather/acoustic ship: very strong.</p>
+
+      <h3>PV-4 — Stage relabeling</h3>
+      <p><strong>What:</strong> Pelaksana submits photos taken at the SAME unit but for a previous construction stage, relabeled as the current stage. E.g., rangka-atap photos relabeled as atap photos with overlay tweak.</p>
+      <p><strong>Why:</strong> Skipping intermediate progress documentation; current unit isn't actually at claimed stage; cover-up of slow progress.</p>
+      <p><strong>Manifestation:</strong> Photo content vs claimed-stage spec mismatch. Pelaksana overlay claims "atap" but vision model sees "rangka." Earlier project history has identical photo at the earlier stage.</p>
+      <p><strong>Catches:</strong> Pillar 1 Item 1.1A (pHash dedupe across own project history) · Pillar 1 Item 1.5A (Claude content-vs-spec match — shipped) · Pillar 1 Item 1.2D (per-spec walk-around video as cross-check).</p>
+      <p><strong>Strength:</strong> Today medium. Vision model + per-stage history catches lazy variant; patient relabeling defeats single-vector.</p>
+
+      <h3>PV-5 — Still-video fake walk-around</h3>
+      <p><strong>What:</strong> Pelaksana stands in one spot during the "walk-around video," speaks the voice OTP, waves the phone slightly. The walk-around isn't actually walking.</p>
+      <p><strong>Why:</strong> Lazy Pelaksana, especially in unfinished interior stages or upper floors.</p>
+      <p><strong>Manifestation:</strong> Video accelerometer/IMU shows minimal motion. GPS within video shows zero displacement. Visual feature-tracking shows static scene with hand jitter only.</p>
+      <p><strong>Catches:</strong> Pillar 1 Item 1.2D (walk-around video validation) · Pillar 4 Item 4.1A+B (audio + spectral fingerprint) · <strong>NEW Phase 0:</strong> motion-vector / optical-flow analysis on walk-around video, flags zero-displacement walks.</p>
+      <p><strong>Strength:</strong> Today weak. Phase 0 motion-vector check (proposed below) closes it.</p>
+
+      <h3>PV-6 — Mock-GPS / fake-location spoofing</h3>
+      <p><strong>What:</strong> Pelaksana installs a mock-GPS Android app, sets fake coordinates, captures photos that report "correct" GPS while physically not on site.</p>
+      <p><strong>Why:</strong> Most adversarial Pelaksana behavior. Tech-savvy minority but gross effect when used.</p>
+      <p><strong>Manifestation:</strong> GPS accuracy field unrealistic. GPS-derived altitude inconsistent with project elevation. Cell-tower triangulation (when available) inconsistent. WiFi BSSID environment inconsistent. Mock-location flag set on Android (catchable via Play Integrity attestation).</p>
+      <p><strong>Catches:</strong> Pillar 2 Item 2.5 (Android Play Integrity — Phase 2, requires custom AutoKon camera app) · Pillar 3 Item 3.2C (multi-point GPS sampling) · Pillar 3 Item 3.3B (temporal alignment — phone moves consistently between captures) · Pillar 5 (chain of custody overlay attestation).</p>
+      <p><strong>Strength:</strong> Today weak (no Play Integrity until custom app). Phase 0 multi-point sampling catches lazy version. Phase 2 attestation closes it fully.</p>
+
+      <h3>PV-7 — Delegation / buddy submission</h3>
+      <p><strong>What:</strong> Pelaksana hands phone to a friend, Mandor, or runner. Buddy walks the site and captures photos using Pelaksana's WhatsApp account.</p>
+      <p><strong>Why:</strong> Lazy Pelaksana. Side gigs. Delegation of legwork to a sub.</p>
+      <p><strong>Manifestation:</strong> Voice OTP says wrong person's voice. KTP-holding selfie when triggered shows wrong face. Behavioral patterns (response times, message phrasing) inconsistent with Pelaksana's history.</p>
+      <p><strong>Catches:</strong> Pillar 2 Item 2.3 (voice OTP + speaker identification) · Pillar 2 Item 2.4 (KTP + selfie + liveness combo, periodic) · Pillar 2 Item 2.2B (per-session KTP holding photo — Pak Jun's ask) · Pillar 4 Item 4.4 (behavioral baselines).</p>
+      <p><strong>Strength:</strong> Today weak (voice OTP exists but speaker-ID not always on). After Phase 0 voice OTP + Phase 1 periodic KTP+selfie: strong.</p>
+
+      <h3>PV-8 — Photo-of-render / photo-of-similar-finished-unit</h3>
+      <p><strong>What:</strong> Pelaksana photographs a marketing brochure render, a mock-up unit, or a different developer's finished show-unit, and submits as their own.</p>
+      <p><strong>Why:</strong> Pre-construction or behind-schedule developer wants to claim progress that doesn't exist yet.</p>
+      <p><strong>Manifestation:</strong> Render has impossible perfect lighting, no construction debris, no Pelaksana voice. Mock-up has GPS mismatch. Sun-angle doesn't match render's lighting direction.</p>
+      <p><strong>Catches:</strong> Pillar 1 Item 1.4A (AI/render detection) · Pillar 1 Item 1.3A (ELA — visual perfection looks suspicious) · Pillar 3 Item 3.7A+B (centroid pattern + siteplan prediction) · Pillar 4 Item 4.3A (sun-angle inconsistency).</p>
+      <p><strong>Strength:</strong> Strong — multiple cross-vectors fail simultaneously.</p>
+
+      <h3>PV-9 — Schedule fraud (front-loaded capture, distributed submission)</h3>
+      <p><strong>What:</strong> Pelaksana visits site once, captures all photos for the week's worth of "sessions" in one trip, then submits photos in batches across multiple days to fake schedule distribution.</p>
+      <p><strong>Why:</strong> Pelaksana saving travel time. Geographic dispersion of Indonesian projects makes daily site visits expensive. Adrian's brainstorm called this out: within-day time-shift fraud isn't motivated, but cross-day batching IS.</p>
+      <p><strong>Manifestation:</strong> All photos captured within a 30-min window per EXIF + sun-angle + weather. Submission timestamps spread across a week. Audio fingerprints share environment-noise signature. Sun positions impossibly consistent given claimed days.</p>
+      <p><strong>Catches:</strong> Pillar 4 Item 4.2C (multi-modal time triangulation) · Pillar 4 Item 4.3A (sun-angle astronomical) · Pillar 4 Item 4.6A (BMKG weather correlation, Phase 1) · Pillar 4 Item 4.1E (acoustic environment fingerprint, Phase 1).</p>
+      <p><strong>Strength:</strong> Strong with Phase 0 sun-angle and Phase 1 weather/acoustic cross-checks.</p>
+
+      <h3>PV-10 — Coverage fraud (only-the-good-parts photography)</h3>
+      <p><strong>What:</strong> Pelaksana captures the photo-positive corners of a unit (clean walls, finished doors) and skips defective areas, claiming "obscured" or providing partial coverage.</p>
+      <p><strong>Why:</strong> Cover up sloppy contractor work. Pelaksana paid by developer (or Mandor, or sub) to look the other way on defects.</p>
+      <p><strong>Manifestation:</strong> Walk-around video shows defects that don't appear in any per-spec photo. Spec checklist coverage suspicious (specific items always "obscured"). Per-spec photo angles all favor good views.</p>
+      <p><strong>Catches:</strong> <strong>NEW Phase 0:</strong> spec-coverage scoring — every spec item must have a photo showing the relevant feature; "obscured" requires SM second-photo + reason · Pillar 1 Item 1.2D (walk-around video as completeness anchor) · Pillar 6 Item 6.2A (RT/RW witness — or SM physical site visit) for systematic coverage gaming.</p>
+      <p><strong>Strength:</strong> Today weak. Phase 0 spec-coverage scoring closes most variants; systematic coverage gaming still requires witness/SM cross-check.</p>
+
+      <h2>3.2 Defense matrix at a glance</h2>
+      <table>
+        <thead>
+          <tr><th>Vector</th><th>Primary defense</th><th>Phase</th><th>Today</th><th>After P0+P1</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PV-1 Wrong-unit substitution</td><td>Pillar 3.7A+B siteplan-relative</td><td>0</td><td>Medium</td><td>Strong</td></tr>
+          <tr><td>PV-2 Sister-project substitution</td><td>Pillar 3.1A bbox + 1.1B cross-project</td><td>0/1</td><td>Strong</td><td>Strong</td></tr>
+          <tr><td>PV-3 Recycled photo</td><td>Pillar 1.1A pHash + 4.3A sun + 4.6A weather</td><td>0/1</td><td>Strong</td><td>Very strong</td></tr>
+          <tr><td>PV-4 Stage relabeling</td><td>Pillar 1.1A pHash + 1.5A vision spec match</td><td>0</td><td>Medium</td><td>Medium-strong</td></tr>
+          <tr><td>PV-5 Still-video fake walk</td><td>Pillar 1.2D + NEW motion-vector</td><td>0</td><td>Weak</td><td>Strong</td></tr>
+          <tr><td>PV-6 Mock-GPS spoofing</td><td>Pillar 3.2C + 2.5 Play Integrity</td><td>0/2</td><td>Weak</td><td>Medium → Strong</td></tr>
+          <tr><td>PV-7 Delegation / buddy</td><td>Pillar 2.3 voice OTP + 2.4 selfie</td><td>0/1</td><td>Weak</td><td>Strong</td></tr>
+          <tr><td>PV-8 Photo-of-render</td><td>Pillar 1.4A + 3.7 + 4.3</td><td>0</td><td>Medium</td><td>Strong</td></tr>
+          <tr><td>PV-9 Front-loaded capture</td><td>Pillar 4.3 + 4.6 + 4.1E</td><td>0/1</td><td>Medium</td><td>Strong</td></tr>
+          <tr><td>PV-10 Coverage fraud</td><td>NEW spec-coverage scoring + 1.2D</td><td>0</td><td>Weak</td><td>Medium-strong</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3.3 What this reframes about ship priority</h2>
+      <p>Three changes follow directly from leading with the in-system Pelaksana attack model:</p>
+      <ol>
+        <li><strong>NEW Phase 0 — motion-vector analysis on walk-around videos</strong> (PV-5 defense). Currently absent. Trivial to implement using OpenCV optical flow on the existing video pipeline. Adds a new line item to §6 Phase 0 / Authenticity.</li>
+        <li><strong>NEW Phase 0 — spec-coverage scoring</strong> (PV-10 defense). Every spec item gets a binary present/absent; "obscured" requires SM second-photo + reason. Adds a new line item to §6 Phase 0 / Authenticity.</li>
+        <li><strong>Demote Item 1.6</strong> (out-of-system consumer-app detectors) <strong>from Phase 0 to Phase 2 residual.</strong> These detectors address the long tail of fabricated artifacts but not the main fraud surface. Engineering budget reallocates to PV-5 and PV-10 defenses where it has higher pitch yield AND defends the actual high-volume threat.</li>
+      </ol>
+
+      <h2>3.4 Pitch language</h2>
+      <p>Lead with attacker behavior, not engineering layers. The bank is buying defense against fraud — they want to hear the names of the fraud, then how AutoKon catches each one.</p>
+      <blockquote>
+        <p><em>"Indonesian construction-progress fraud isn't sophisticated AI forgery. It's a Pelaksana standing in the parking lot of a sister project, photographing similar-looking units, and claiming Unit A's progress. Or recycling photos from last week's trip. Or handing the phone to a runner. Our 6 pillars are organized around 10 named in-system fraud patterns we have seen, and the signal that catches each one."</em></p>
+        <p><em>"For each pattern, we have at least one Phase 0 defense that catches the lazy version, and at least one PILOT-30 commitment that hardens against the patient version."</em></p>
+      </blockquote>
+    </section>
+
+    <!-- Section 4: The Six Pillars -->
+    <section id="section-4">
+      <h1>§4 The Six Pillars</h1>
       <p>Each pillar opens with the bank's question, names its scope, and walks each item with: threat description, threat motivation, Dickson's existing solution if any, 2–5 proposed solutions with multi-dimensional +/-, and a recommended take.</p>
 
       <p style="font-size: 13px; color: var(--slate-500); font-style: italic; margin-top: 16px;">Click each pillar header below to expand. Use the search box at the top to filter for specific items, threats, or solutions.</p>
@@ -539,9 +661,10 @@
           </div>
 
           <div class="item new">
-            <div class="item-eyebrow">Item 1.6 · NEW · highest leverage</div>
-            <div class="item-title">Low-Tech Indonesian Consumer-App Fraud Detection</div>
-            <p><strong>Threat — the dominant Indonesian fraud profile:</strong></p>
+            <div class="item-eyebrow">Item 1.6 · DEMOTED to Phase 2 residual (May 2026 reframe)</div>
+            <div class="item-title">Out-of-System Consumer-App Fraud Detection (residual)</div>
+            <p style="background: var(--beer-50, #FFF7ED); border-left: 3px solid var(--halloween, #FF7426); padding: 12px 16px; margin: 12px 0; font-size: 13px;"><strong>Status (revised May 2026 per Dickson's reframe):</strong> Phase 2 residual detection. These detectors address <strong>out-of-system fabricated artifacts</strong> — fraud produced in tools we don't see (Word, IG Story, Canva, screenshot, photo-of-print) and submitted as a result. Real defenses but the long tail, not the dominant fraud surface. AutoKon's primary fraud surface is <strong>in-system Pelaksana behavior</strong> — see §3 Pelaksana Attack Playbook above. Engineering budget reallocates to PV-5 and PV-10 defenses for Phase 0.</p>
+            <p><strong>Threat — out-of-system fabricated artifacts:</strong></p>
             <ul>
               <li>PDF-Word-export-reedit-reexport</li>
               <li>Instagram Story / IG Layout overlay</li>
@@ -559,7 +682,7 @@
               <li><strong>E. Photo-of-print detection</strong> — paper texture + color cast.</li>
               <li><strong>F. WhatsApp re-share detection</strong> — compression signature + EXIF stripping.</li>
             </ul>
-            <p><strong>Take:</strong> A + B + C + D should be Phase 0 priority. Highest-volume Indonesian fraud vectors, individually cheap, very high pitch story value.</p>
+            <p><strong>Take (revised):</strong> Originally Phase 0 priority; now Phase 2 residual. Ship A+B+C+D opportunistically as cheap insurance against the out-of-system fabrication tail, but do not lead the bank-pitch narrative with these. Phase 0 budget redirects to in-system Pelaksana defenses (PV-5 motion-vector + PV-10 spec-coverage scoring).</p>
           </div>
         </div>
       </div>
@@ -846,8 +969,8 @@
     </section>
 
     <!-- Section 4: Master Item Table -->
-    <section id="section-4">
-      <h1>§4 Master Item Table</h1>
+    <section id="section-5">
+      <h1>§5 Master Item Table</h1>
       <p>Every item across 6 pillars in a single table, sortable by threat motivation and ship priority.</p>
       <p style="font-size: 13px; color: var(--slate-500); font-style: italic;">For full table with all dimensions (cost, engineering, friction, etc.), see the markdown source.</p>
 
@@ -894,20 +1017,22 @@
     </section>
 
     <!-- Section 5: Phase ladder -->
-    <section id="section-5">
-      <h1>§5 Recommended Ship Priority</h1>
+    <section id="section-6">
+      <h1>§6 Recommended Ship Priority</h1>
 
       <div class="phase phase-0">
         <h3>Phase 0 — Ship Now</h3>
         <p>High-motivation defenses + Phase-0 immediate wins. Already-shipped items + items that ship in days.</p>
-        <p><strong>Standout immediate wins:</strong></p>
+        <p><strong>Standout immediate wins (revised post-§3 reframe):</strong></p>
         <ul>
-          <li><strong>1.6 A-D</strong> — Low-tech consumer-app fraud detectors (JPEG quantization, IG-Story, screenshot, photo-of-screen). Highest-leverage new addition.</li>
+          <li><strong>NEW</strong> — Motion-vector / optical-flow analysis on walk-around videos. Catches PV-5 still-video fake walks. Trivial to implement on the existing video pipeline.</li>
+          <li><strong>NEW</strong> — Spec-coverage scoring. Catches PV-10 coverage fraud — every spec item present/absent + "obscured" requires SM second-photo + reason.</li>
           <li><strong>5.2 D</strong> — WORM storage config change. Ships in a day. Highest cost-effectiveness ratio in the brief.</li>
           <li><strong>5.4 A</strong> — Botpress witness yes/no prompt. 10-minute flow change.</li>
-          <li><strong>3.7 A + B</strong> — Centroid-pattern verification + siteplan-based prediction. Adrian's pattern insight applied.</li>
+          <li><strong>3.7 A + B</strong> — Centroid-pattern verification + siteplan-based prediction. Adrian's pattern insight applied. Catches PV-1 wrong-unit substitution.</li>
           <li><strong>4.1 B</strong> — Spectral fingerprint (Shazam-style) hardening upgrade to Dickson's existing audio fingerprint.</li>
           <li><strong>6.1 B</strong> — AutoKon-routed KJPP triggers using Dickson's existing tier classification.</li>
+          <li style="color: var(--slate-500); font-style: italic;">(Item 1.6 A-D consumer-app fraud detectors moved from Phase 0 to Phase 2 residual — see §3.3)</li>
         </ul>
       </div>
 
@@ -931,6 +1056,7 @@
         <h3>Phase 2 — Roadmap (named in pitch, observed-attack-driven shipping)</h3>
         <ul>
           <li>1.4 B — C2PA content credentials (waits on Pelaksana phone fleet upgrade ~2027+)</li>
+          <li><strong>1.6 A-D residual</strong> — JPEG quantization + IG-Story + screenshot + photo-of-screen detection (out-of-system fabrication tail; ship opportunistically, do not lead pitch)</li>
           <li>2.5 A — Android Play Integrity (requires custom AutoKon camera app)</li>
           <li>5.5 B + D — Mobile-device-bound keys + HSM keys</li>
           <li>5.6 C — Database WAL export</li>
@@ -949,8 +1075,8 @@
     </section>
 
     <!-- Section 6: Pitch Language -->
-    <section id="section-6">
-      <h1>§6 Pitch Language Reference</h1>
+    <section id="section-7">
+      <h1>§7 Pitch Language Reference</h1>
       <p>Actual sentences for the bank pitch deck, organized by pillar.</p>
 
       <h3>Authenticity</h3>
@@ -999,8 +1125,8 @@
     </section>
 
     <!-- Section 7: Open questions -->
-    <section id="section-7">
-      <h1>§7 Open Questions for Decision</h1>
+    <section id="section-8">
+      <h1>§8 Open Questions for Decision</h1>
       <ol>
         <li><strong>Is custom AutoKon camera app on the table for PILOT-30?</strong> Cross-cuts Items 1.5B + 2.5A. Resolves device-attestation and overlay-spoofing simultaneously.</li>
         <li><strong>KYC partnership selection.</strong> Privy vs Tilaka vs Sumsub Indonesia vs Veriff.</li>
@@ -1014,8 +1140,8 @@
     </section>
 
     <!-- Section 8: Appendix -->
-    <section id="section-8">
-      <h1>§8 Appendix — Relationship to Existing AutoKon Work</h1>
+    <section id="section-9">
+      <h1>§9 Appendix — Relationship to Existing AutoKon Work</h1>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Existing work</th><th>This brief's relationship</th></tr></thead>

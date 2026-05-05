@@ -13,6 +13,8 @@
 
 A comprehensive R&D brief for AutoKon's photo verification + evidence integrity layer — the foundational trust story for the BSN/BTN bank pitch. Reorganizes Dickson's 10-layer engineering architecture into **6 audience-first pillars** that map directly to bank concerns. **35 items, 100+ proposed solutions** with multi-dimensional +/- across cost, engineering, implementability, low-end-device friendliness, Pelaksana friction, pitch story strength, false-positive risk, and adversarial difficulty.
 
+The framing leads with the **Pelaksana Attack Playbook** (§3) — 10 named in-system fraud vectors (PV-1 through PV-10) mapped to the pillar/item that catches each. Per Dickson's May 2026 reframe: AutoKon's primary fraud surface is **in-system Pelaksana behavior** (a legitimately enrolled Pelaksana gaming what they capture, when, and where) — not **out-of-system fabricated artifacts** (Word/IG/Canva/screenshot/photo-of-print). Engineering budget reallocates: Item 1.6 consumer-app detectors demote to Phase 2 residual, and two new Phase 0 items appear — motion-vector analysis (catches still-video fake walks, PV-5) and spec-coverage scoring (catches coverage fraud, PV-10).
+
 Two cross-cutting lenses introduced during the brainstorm — **threat motivation** and **attacker tech-savviness** — shape the recommended ship priorities.
 
 The 6 pillars:
@@ -89,20 +91,23 @@ The workflow proposal grounds the brief in TARA AI's existing pipeline (WhatsApp
 ## Recommended ship priority (high-level)
 
 **Phase 0 — Ship now (immediate wins):**
-- Item 1.6 A-D — Low-tech consumer-app fraud detectors (Word/IG-Story/screenshot/photo-of-screen)
+- **NEW** — Motion-vector / optical-flow analysis on walk-around videos (catches PV-5 still-video fake walk)
+- **NEW** — Spec-coverage scoring (catches PV-10 coverage fraud — every spec item present/absent + "obscured" requires SM second-photo + reason)
 - Item 5.2 D — WORM storage config change (ships in a day)
 - Item 5.4 A — Botpress witness yes/no prompt (10-minute Botpress flow change)
-- Item 3.7 A+B — Centroid-pattern + siteplan-based prediction (Adrian's pattern insight)
+- Item 3.7 A+B — Centroid-pattern + siteplan-based prediction (Adrian's pattern insight; catches PV-1 wrong-unit substitution)
 - Item 4.1 B — Spectral fingerprint hardening on Dickson's audio fingerprint
 - Item 6.1 B — AutoKon-routed KJPP triggers using existing tier classification
+- *(Item 1.6 A-D consumer-app fraud detectors moved from Phase 0 to Phase 2 residual per Dickson's reframe)*
 
 **Phase 1 — PILOT-30 commitments** (ship in 30 days from first signed bank pilot):
 - KYC partnership integration · drone fly-over ingest · RFC 3161 TSA sealing · Merkle tree hash chain · call-to-prayer cross-check · BMKG weather correlation · RT/RW witness program · Privy/eMeterai third-party signing
 
 **Phase 2 — Roadmap-named, observed-attack-driven shipping:**
 - Custom AutoKon camera app (resolves Play Integrity + overlay-spoof simultaneously) · C2PA content credentials · HSM keys · WAL export
+- **Item 1.6 A-D residual** — JPEG quantization fingerprinting · IG-Story artifact detection · screenshot detection · photo-of-screen moiré detection (out-of-system fabrication tail)
 
-See §5 of `EVIDENCE_INTEGRITY_RESEARCH.md` for full priority breakdown.
+See §6 of `EVIDENCE_INTEGRITY_RESEARCH.md` for full priority breakdown.
 
 ---
 
@@ -121,7 +126,7 @@ Six items in this brief are uniquely Indonesian — no US/EU competitor would th
 
 ## Open questions for decision
 
-Eight decisions before engineering can proceed cleanly. Listed in §7 of the MD master.
+Eight decisions before engineering can proceed cleanly. Listed in §8 of the MD master.
 
 1. Is custom AutoKon camera app on the table for PILOT-30?
 2. KYC partnership selection: Privy vs Tilaka vs Sumsub vs Veriff

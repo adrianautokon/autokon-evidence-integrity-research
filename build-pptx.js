@@ -273,7 +273,7 @@ function bigTitle(s, lines, opts) {
 // Helper for pillar slide
 function pillarSlide(num, title, question, items, anchor) {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, anchor + " · Pillar " + num + " · " + title);
+  eyebrow(s, String(anchor).padStart(2, "0") + " · Pillar " + num + " · " + title);
   brandMark(s, false); pageNum(s, anchor + 1, false);
 
   s.addText(title, {
@@ -329,15 +329,153 @@ function pillarSlide(num, title, question, items, anchor) {
   });
 }
 
-// ============= SLIDES 4-9 — PILLARS =============
+// ============= SLIDE 4 — THE PELAKSANA ATTACK PLAYBOOK =============
+{
+  const s = pres.addSlide(); lightBg(s);
+  eyebrow(s, "03 · The Pelaksana Attack Playbook"); brandMark(s, false); pageNum(s, 4, false);
+
+  s.addText("10 named ways a Pelaksana can fool us.", {
+    x: PAD, y: 0.95, w: W - 2 * PAD, h: 0.85,
+    fontFace: F_DISPLAY, fontSize: 36, color: C.slate900, bold: true,
+    charSpacing: -1, valign: "top", margin: 0,
+  });
+  s.addText("Per Dickson's reframe (May 2026): focus on in-system Pelaksana fraud — a legitimately enrolled user gaming what they capture, when, and where. Out-of-system fabrication (Word/IG/Canva) is the long tail — Item 1.6 demoted to Phase 2 residual.", {
+    x: PAD, y: 1.85, w: W - 2 * PAD, h: 0.65,
+    fontFace: F_BODY, fontSize: 13, color: C.slate500, italic: true,
+    valign: "top", margin: 0,
+  });
+
+  // 10 attack vectors in 2 columns
+  const vectors = [
+    { id: "PV-1", title: "Wrong-unit substitution", note: "Unit B photos for Unit A", catches: "Pillar 3.7 siteplan-relative" },
+    { id: "PV-2", title: "Sister-project substitution", note: "Different KodeProper", catches: "Pillar 3.1 bbox + 1.1B" },
+    { id: "PV-3", title: "Recycled photo (previous trip)", note: "Yesterday's photos for today", catches: "Pillar 1.1 pHash + 4.3 sun" },
+    { id: "PV-4", title: "Stage relabeling", note: "Rangka photos as atap", catches: "Pillar 1.1 + 1.5 vision" },
+    { id: "PV-5", title: "Still-video fake walk", note: "Stand still, wave phone", catches: "NEW motion-vector" },
+    { id: "PV-6", title: "Mock-GPS spoofing", note: "Fake-location Android app", catches: "Pillar 3.2C + 2.5 attestation" },
+    { id: "PV-7", title: "Delegation / buddy", note: "Hand phone to a runner", catches: "Pillar 2.3 voice + 2.4 selfie" },
+    { id: "PV-8", title: "Photo-of-render", note: "Marketing brochure / mock-up", catches: "Pillar 1.4 AI + 3.7 + 4.3" },
+    { id: "PV-9", title: "Front-loaded capture", note: "All photos in 1 trip, distributed submission", catches: "Pillar 4.3 + 4.6 + 4.1E" },
+    { id: "PV-10", title: "Coverage fraud", note: "Only the good parts", catches: "NEW spec-coverage + 1.2D" },
+  ];
+  const colW = (W - 2 * PAD - 0.2) / 2;
+  const rowH = 0.40;
+  vectors.forEach((v, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = PAD + col * (colW + 0.2);
+    const y = 2.7 + row * (rowH + 0.05);
+    s.addShape(pres.shapes.RECTANGLE, {
+      x, y, w: colW, h: rowH,
+      fill: { color: C.white }, line: { color: C.slate200 },
+    });
+    s.addShape(pres.shapes.RECTANGLE, {
+      x, y, w: 0.08, h: rowH,
+      fill: { color: C.halloween }, line: { color: "00000000" },
+    });
+    s.addText(v.id, {
+      x: x + 0.2, y, w: 0.55, h: rowH,
+      fontFace: F_MONO, fontSize: 9, color: C.halloween, bold: true,
+      valign: "middle", margin: 0,
+    });
+    s.addText(v.title, {
+      x: x + 0.78, y, w: 2.4, h: rowH,
+      fontFace: F_BODY, fontSize: 11, color: C.slate900, bold: true,
+      valign: "middle", margin: 0,
+    });
+    s.addText(v.catches, {
+      x: x + 3.2, y, w: colW - 3.3, h: rowH,
+      fontFace: F_BODY, fontSize: 9.5, color: C.slate500,
+      valign: "middle", margin: 0,
+    });
+  });
+
+  s.addText("Bank pitch flagship: \"For each pattern, we have at least one Phase 0 defense that catches the lazy version, and one PILOT-30 commitment that hardens against the patient version.\"", {
+    x: PAD, y: H - 0.65, w: W - 2 * PAD, h: 0.4,
+    fontFace: F_BODY, fontSize: 11, color: C.slate600, italic: true,
+    valign: "middle", align: "center", margin: 0,
+  });
+}
+
+// ============= SLIDE 5 — DEFENSE MATRIX + RESHAPED PHASE 0 =============
+{
+  const s = pres.addSlide(); lightBg(s);
+  eyebrow(s, "04 · Defense Matrix · Phase 0 Reshape"); brandMark(s, false); pageNum(s, 5, false);
+
+  s.addText("Two new Phase 0 items follow directly from leading with the attack model.", {
+    x: PAD, y: 0.95, w: W - 2 * PAD, h: 0.85,
+    fontFace: F_DISPLAY, fontSize: 30, color: C.slate900, bold: true,
+    charSpacing: -1, valign: "top", margin: 0,
+  });
+
+  // Three change cards
+  const changes = [
+    {
+      tag: "ADD",
+      title: "Motion-vector / optical-flow analysis",
+      note: "On walk-around videos. Catches PV-5 still-video fake walks. Trivial OpenCV implementation on the existing video pipeline.",
+      color: C.beer,
+    },
+    {
+      tag: "ADD",
+      title: "Spec-coverage scoring",
+      note: "Every spec item present/absent. \"Obscured\" requires SM second-photo + reason. Catches PV-10 coverage fraud.",
+      color: C.beer,
+    },
+    {
+      tag: "DEMOTE",
+      title: "Item 1.6 (Word/IG/Canva detectors) → Phase 2 residual",
+      note: "These detectors address out-of-system fabricated artifacts — the long tail, not the dominant fraud surface. Engineering budget reallocates to PV-5 and PV-10 defenses.",
+      color: C.slate500,
+    },
+  ];
+  const cardH = 1.45;
+  changes.forEach((c, i) => {
+    const y = 2.0 + i * (cardH + 0.18);
+    s.addShape(pres.shapes.RECTANGLE, {
+      x: PAD, y, w: W - 2 * PAD, h: cardH,
+      fill: { color: C.white }, line: { color: C.slate200 },
+    });
+    s.addShape(pres.shapes.RECTANGLE, {
+      x: PAD, y, w: 0.16, h: cardH,
+      fill: { color: c.color }, line: { color: "00000000" },
+    });
+    s.addShape(pres.shapes.RECTANGLE, {
+      x: PAD + 0.4, y: y + 0.25, w: 1.0, h: 0.4,
+      fill: { color: c.color }, line: { color: c.color },
+    });
+    s.addText(c.tag, {
+      x: PAD + 0.4, y: y + 0.25, w: 1.0, h: 0.4,
+      fontFace: F_MONO, fontSize: 10, color: C.white, bold: true,
+      align: "center", valign: "middle", charSpacing: 4, margin: 0,
+    });
+    s.addText(c.title, {
+      x: PAD + 1.55, y: y + 0.22, w: W - 2 * PAD - 1.7, h: 0.5,
+      fontFace: F_DISPLAY, fontSize: 18, color: C.slate900, bold: true,
+      valign: "top", margin: 0,
+    });
+    s.addText(c.note, {
+      x: PAD + 1.55, y: y + 0.78, w: W - 2 * PAD - 1.7, h: 0.6,
+      fontFace: F_BODY, fontSize: 12, color: C.slate600,
+      valign: "top", margin: 0,
+    });
+  });
+
+  s.addText("\"We name 10 ways a Pelaksana can fool us, and here's how we catch each.\" — pitch flagship", {
+    x: PAD, y: H - 0.65, w: W - 2 * PAD, h: 0.4,
+    fontFace: F_BODY, fontSize: 12, color: C.slate700, italic: true, bold: true,
+    valign: "middle", align: "center", margin: 0,
+  });
+}
+
+// ============= SLIDES 6-11 — PILLARS =============
 pillarSlide("01", "Authenticity", "Is the photo real, or is it fabricated, edited, or AI-generated?", [
   { id: "1.1", title: "Photo recycling detection", note: "pHash + deep-learning embedding · Dickson's L3 baseline + cross-project layer", tag: "SHIPPED" },
   { id: "1.2", title: "Cross-photo consistency", note: "Time-spread + shadow direction + Claude batch-check", tag: "" },
   { id: "1.3", title: "Edit/Photoshop forgery (ELA)", note: "ELA + multi-model AI ensemble — 'as an AI tech company we should enable this'", tag: "" },
   { id: "1.4", title: "AI-generated photo detection", note: "JAKI Pemprov DKI Gemini scandal proof point — must address", tag: "" },
   { id: "1.5", title: "Trusted-source overlay validation", note: "Whitelisted timestamp camera + custom AutoKon app (PILOT-30 commitment)", tag: "SHIPPED" },
-  { id: "1.6", title: "Low-tech consumer-app fraud detection", note: "Word export · IG Story · screenshots · photo-of-print · highest leverage NEW", tag: "NEW" },
-], 3);
+  { id: "1.6", title: "Out-of-system consumer-app fraud (residual)", note: "Word/IG/Canva/screenshot detection · DEMOTED to Phase 2 residual per Dickson's reframe", tag: "P2" },
+], 5);
 
 pillarSlide("02", "Identity", "Is the person submitting this who they claim to be?", [
   { id: "2.1", title: "Phone-number binding", note: "Phone whitelist · 2FA OTP · WhatsApp Business API · periodic re-auth", tag: "SHIPPED" },
@@ -345,7 +483,7 @@ pillarSlide("02", "Identity", "Is the person submitting this who they claim to b
   { id: "2.3", title: "Voice-print of Pelaksana", note: "Voice OTP at session start · piggybacks on L0b audio fingerprint", tag: "NEW" },
   { id: "2.4", title: "Liveness check", note: "Passive + active liveness · WhatsApp-native KYC enrollment (Adrian's idea)", tag: "NEW" },
   { id: "2.5", title: "Device attestation", note: "Android Play Integrity · pairs with custom AutoKon camera app", tag: "NEW" },
-], 4);
+], 6);
 
 pillarSlide("03", "Place", "Is this the actual unit it claims to be?", [
   { id: "3.1", title: "Photo GPS consistency (not accuracy)", note: "Per-unit centroid clustering · pattern beats accuracy", tag: "" },
@@ -355,7 +493,7 @@ pillarSlide("03", "Place", "Is this the actual unit it claims to be?", [
   { id: "3.5", title: "Project-level geo-tag (Pak Jun #11)", note: "Bank inputs full address; system geocodes — respects Indonesian app convention", tag: "" },
   { id: "3.6", title: "Satellite imagery cross-check", note: "Sentinel-2 free tier default · Planet Labs premium tier", tag: "NEW" },
   { id: "3.7", title: "Siteplan-relative cross-reference", note: "Pattern-matching against siteplan — Adrian's archipelago-reality insight", tag: "NEW" },
-], 5);
+], 7);
 
 pillarSlide("04", "Time", "Was this captured now, not last week or recycled?", [
   { id: "4.1", title: "Audio fingerprint", note: "Dickson's L0b · Shazam-style spectral upgrade · best single pitch sentence", tag: "SHIPPED" },
@@ -364,7 +502,7 @@ pillarSlide("04", "Time", "Was this captured now, not last week or recycled?", [
   { id: "4.4", title: "Behavioral baseline per Pelaksana", note: "Time-of-day · pace · linguistic · geographic · multi-factor composite", tag: "" },
   { id: "4.5", title: "External time anchor / public sealing", note: "RFC 3161 TSA preferred over blockchain framing", tag: "NEW" },
   { id: "4.6", title: "Indonesian-context cross-correlation", note: "BMKG weather · call-to-prayer · uniquely Indonesian moat", tag: "NEW" },
-], 6);
+], 8);
 
 pillarSlide("05", "Chain of Custody", "Once evidence enters AutoKon, can it be tampered with?", [
   { id: "5.1", title: "Multi-step approval workflow", note: "Pengawas → SM → PM · quorum-based for high-value · AI-assisted queue", tag: "SHIPPED" },
@@ -373,7 +511,7 @@ pillarSlide("05", "Chain of Custody", "Once evidence enters AutoKon, can it be t
   { id: "5.4", title: "SM digital sign-off / witness", note: "Dickson's exact ask — 'Saksi: Anda lihat hari ini? Ya/Tidak' · 10-min ship", tag: "" },
   { id: "5.5", title: "Cryptographic per-signer signing", note: "PKI public registry · independently verifiable signatures", tag: "NEW" },
   { id: "5.6", title: "Immutable audit log", note: "Postgres temporal tables · WAL export to immutable storage", tag: "NEW" },
-], 7);
+], 9);
 
 pillarSlide("06", "Independent Verification", "Do you ever rely on something other than your own software?", [
   { id: "6.1", title: "KJPP physical inspection", note: "AutoKon-routed triggers using Dickson's tier classification — flagship pitch line", tag: "" },
@@ -381,12 +519,12 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
   { id: "6.3", title: "Satellite imagery cross-check", note: "Cross-listed with Pillar 3 · 'EU Space Agency Sentinel-2'", tag: "" },
   { id: "6.4", title: "Drone overflight", note: "Cross-listed with Pillar 3 · developer-supplied", tag: "" },
   { id: "6.5", title: "Independent third-party signing", note: "Privy/eMeterai · same e-sign as bank's KYC team", tag: "NEW" },
-], 8);
+], 10);
 
 // ============= SLIDE 10 — TWO LENSES =============
 {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, "09 · Two Cross-Cutting Lenses"); brandMark(s, false); pageNum(s, 10, false);
+  eyebrow(s, "11 · Two Cross-Cutting Lenses"); brandMark(s, false); pageNum(s, 12, false);
 
   s.addText("Threat motivation × tech-savviness — the 2x2 that organizes priority.", {
     x: PAD, y: 0.95, w: W - 2 * PAD, h: 1.05,
@@ -462,7 +600,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 11 — INDONESIAN MOAT =============
 {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, "10 · The Indonesian Moat"); brandMark(s, false); pageNum(s, 11, false);
+  eyebrow(s, "12 · The Indonesian Moat"); brandMark(s, false); pageNum(s, 13, false);
 
   s.addText("Engineered for Indonesian field reality.", {
     x: PAD, y: 0.95, w: W - 2 * PAD, h: 0.9,
@@ -515,7 +653,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 12 — PHASE 0 =============
 {
   const s = pres.addSlide(); darkBg(s);
-  s.addText("11 · PHASE 0 — IMMEDIATE WINS", {
+  s.addText("13 · PHASE 0 — IMMEDIATE WINS", {
     x: PAD, y: 0.32, w: 8, h: 0.36,
     fontFace: F_MONO, fontSize: 10, color: C.slate400, bold: true,
     charSpacing: 6, margin: 0, valign: "middle",
@@ -529,7 +667,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
     fontFace: F_MONO, fontSize: 10, color: C.white, bold: true,
     align: "center", valign: "middle", charSpacing: 4, margin: 0,
   });
-  brandMark(s, true); pageNum(s, 12, true);
+  brandMark(s, true); pageNum(s, 14, true);
 
   s.addText("Ship in days. Highest leverage.", {
     x: PAD, y: 1.0, w: W - 2 * PAD, h: 0.95,
@@ -582,7 +720,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 13 — PHASE 1 =============
 {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, "12 · PHASE 1 — PILOT-30 Commitments");
+  eyebrow(s, "14 · PHASE 1 — PILOT-30 Commitments");
   s.addShape(pres.shapes.RECTANGLE, {
     x: W - PAD - 1.4, y: 0.32, w: 1.4, h: 0.36,
     fill: { color: C.beer }, line: { color: C.beer },
@@ -592,7 +730,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
     fontFace: F_MONO, fontSize: 10, color: C.white, bold: true,
     align: "center", valign: "middle", charSpacing: 4, margin: 0,
   });
-  brandMark(s, false); pageNum(s, 13, false);
+  brandMark(s, false); pageNum(s, 15, false);
 
   s.addText("Ship in 30 days from first signed pilot.", {
     x: PAD, y: 1.0, w: W - 2 * PAD, h: 1.0,
@@ -638,7 +776,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 14 — PHASE 2 + ROADMAP =============
 {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, "13 · PHASE 2 + Roadmap Reserve"); brandMark(s, false); pageNum(s, 14, false);
+  eyebrow(s, "15 · PHASE 2 + Roadmap Reserve"); brandMark(s, false); pageNum(s, 16, false);
 
   s.addText("Roadmap-named, observed-attack-driven shipping.", {
     x: PAD, y: 1.0, w: W - 2 * PAD, h: 0.95,
@@ -723,7 +861,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 15 — PITCH LANGUAGE =============
 {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, "14 · Pitch Language Reference"); brandMark(s, false); pageNum(s, 15, false);
+  eyebrow(s, "16 · Pitch Language Reference"); brandMark(s, false); pageNum(s, 17, false);
 
   s.addText("The actual sentences for the bank pitch deck.", {
     x: PAD, y: 1.0, w: W - 2 * PAD, h: 0.85,
@@ -763,12 +901,12 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 16 — THE CLOSE =============
 {
   const s = pres.addSlide(); darkBg(s);
-  s.addText("15 · CLOSE", {
+  s.addText("17 · CLOSE", {
     x: PAD, y: 0.32, w: 8, h: 0.36,
     fontFace: F_MONO, fontSize: 10, color: C.slate400, bold: true,
     charSpacing: 6, margin: 0, valign: "middle",
   });
-  pageNum(s, 16, true);
+  pageNum(s, 18, true);
 
   s.addText("Two takeaways", {
     x: PAD, y: 1.4, w: W - 2 * PAD, h: 0.8,
@@ -834,7 +972,7 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 17 — ASKS =============
 {
   const s = pres.addSlide(); lightBg(s);
-  eyebrow(s, "16 · Open Questions for Decision"); brandMark(s, false); pageNum(s, 17, false);
+  eyebrow(s, "18 · Open Questions for Decision"); brandMark(s, false); pageNum(s, 19, false);
 
   s.addText("Eight decisions before engineering proceeds.", {
     x: PAD, y: 1.0, w: W - 2 * PAD, h: 0.85,
@@ -874,12 +1012,12 @@ pillarSlide("06", "Independent Verification", "Do you ever rely on something oth
 // ============= SLIDE 18 — END =============
 {
   const s = pres.addSlide(); darkBg(s);
-  s.addText("17 · END", {
+  s.addText("19 · END", {
     x: PAD, y: 0.32, w: 8, h: 0.36,
     fontFace: F_MONO, fontSize: 10, color: C.slate400, bold: true,
     charSpacing: 6, margin: 0, valign: "middle",
   });
-  pageNum(s, 18, true);
+  pageNum(s, 20, true);
 
   s.addText("Six pillars,", {
     x: PAD, y: 1.7, w: W - 2 * PAD, h: 0.95,
