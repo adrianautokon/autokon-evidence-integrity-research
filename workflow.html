@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoKon — Workflow Integration · Siteplan + Video</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --blue-50: #EFF6FF; --blue-600: #2563EB; --blue-700: #1D4ED8;
+      --orange-50: #FFF7ED; --orange-500: #F7941D; --orange-600: #FF7426; --orange-700: #C2410C;
+      --slate-25: #FBFCFE; --slate-50: #F8FAFC; --slate-100: #F1F5F9; --slate-200: #E2E8F0;
+      --slate-300: #CBD5E1; --slate-400: #94A3B8; --slate-500: #64748B; --slate-600: #475569;
+      --slate-700: #334155; --slate-800: #1E293B; --slate-900: #0F172A;
+      --green-50: #DCFCE7; --green-700: #166534;
+      --amber-50: #FEF3C7; --amber-700: #92400E;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--slate-25); color: var(--slate-900);
+      -webkit-font-smoothing: antialiased; line-height: 1.6;
+    }
+
+    /* Top nav */
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(251, 252, 254, 0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 14px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .brand { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+    .brand .id { color: var(--slate-500); font-weight: 500; }
+    .topnav-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate-500); letter-spacing: 0.04em; }
+    .topnav-links { display: flex; gap: 16px; }
+    .topnav-links a {
+      color: var(--slate-600); text-decoration: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .topnav-links a:hover { color: var(--slate-900); }
+
+    /* Layout */
+    .layout {
+      display: grid; grid-template-columns: 260px 1fr;
+      max-width: 1400px; margin: 0 auto;
+      min-height: calc(100vh - 56px);
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+    }
+
+    /* TOC */
+    .toc {
+      position: sticky; top: 64px; height: calc(100vh - 64px);
+      overflow-y: auto;
+      padding: 32px 24px; border-right: 1px solid var(--slate-200);
+      background: var(--slate-50);
+    }
+    .toc-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--slate-500); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { margin-bottom: 4px; }
+    .toc a {
+      display: block; padding: 5px 8px; border-radius: 4px;
+      font-size: 13px; line-height: 1.4;
+      color: var(--slate-700); text-decoration: none;
+    }
+    .toc a:hover { background: white; color: var(--slate-900); }
+    .toc a.active { background: var(--blue-600); color: white; font-weight: 600; }
+
+    /* Main */
+    .main {
+      padding: 48px 56px 96px; min-width: 0;
+      max-width: 1000px;
+    }
+
+    /* Header */
+    .doc-hdr {
+      padding-bottom: 32px; border-bottom: 2px solid var(--slate-900);
+      margin-bottom: 40px;
+    }
+    .doc-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      color: var(--orange-600); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .doc-title {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 38px; line-height: 1.1; letter-spacing: -0.02em;
+      color: var(--slate-900); margin-bottom: 18px;
+    }
+    .doc-meta {
+      display: grid; grid-template-columns: 110px 1fr; gap: 6px 16px;
+      font-size: 13px; line-height: 1.5;
+    }
+    .doc-meta .key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--slate-500); text-transform: uppercase; padding-top: 3px;
+    }
+    .doc-meta .val { color: var(--slate-700); }
+    .doc-meta strong { color: var(--slate-900); font-weight: 600; }
+
+    /* Headings */
+    h1 {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 28px; line-height: 1.15; letter-spacing: -0.02em;
+      color: var(--slate-900);
+      margin: 48px 0 14px 0;
+      scroll-margin-top: 80px;
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 20px; line-height: 1.2; letter-spacing: -0.01em;
+      color: var(--slate-900);
+      margin: 36px 0 12px 0;
+      padding-bottom: 8px; border-bottom: 1px solid var(--slate-200);
+      scroll-margin-top: 80px;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      font-size: 16px; line-height: 1.3;
+      color: var(--slate-900);
+      margin: 24px 0 8px 0;
+    }
+    p {
+      font-size: 14.5px; line-height: 1.7; color: var(--slate-700);
+      margin-bottom: 14px;
+    }
+    p strong, li strong { color: var(--slate-900); font-weight: 600; }
+    em { color: var(--slate-600); }
+    ul, ol { padding-left: 22px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; line-height: 1.65; color: var(--slate-700); font-size: 14.5px; }
+
+    /* Tables */
+    .table-wrap { margin: 14px 0 22px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.45; }
+    table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+      color: var(--slate-500); text-transform: uppercase;
+      background: var(--slate-50); padding: 9px 10px;
+      border-bottom: 2px solid var(--slate-300);
+      text-align: left; vertical-align: top;
+    }
+    table td { padding: 8px 10px; border-bottom: 1px solid var(--slate-100); vertical-align: top; }
+    table tr:last-child td { border-bottom: 1px solid var(--slate-300); }
+
+    /* Code blocks */
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; line-height: 1.55;
+      background: var(--slate-900); color: var(--slate-200);
+      padding: 16px 20px; border-radius: 8px;
+      overflow-x: auto; margin: 14px 0 20px 0;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92em; background: var(--slate-100);
+      padding: 1px 5px; border-radius: 3px;
+      color: var(--slate-800); font-weight: 500;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    /* Mermaid container */
+    .mermaid-wrap {
+      margin: 18px 0 24px 0;
+      padding: 20px;
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .mermaid { font-family: 'Inter', sans-serif !important; }
+
+    /* Callout */
+    .callout {
+      padding: 14px 20px; border-radius: 6px;
+      margin: 16px 0 22px 0;
+      font-size: 14px; line-height: 1.6;
+    }
+    .callout-blue { background: var(--blue-50); border-left: 4px solid var(--blue-600); color: var(--slate-800); }
+    .callout-orange { background: var(--orange-50); border-left: 4px solid var(--orange-600); color: var(--slate-800); }
+    .callout-green { background: var(--green-50); border-left: 4px solid var(--green-700); color: var(--slate-800); }
+    .callout-slate { background: var(--slate-100); border-left: 4px solid var(--slate-700); color: var(--slate-800); }
+    .callout strong { color: var(--slate-900); }
+
+    blockquote {
+      border-left: 4px solid var(--slate-300);
+      padding: 4px 0 4px 18px;
+      margin: 14px 0 22px 4px;
+      font-style: italic; color: var(--slate-600);
+      font-size: 14.5px; line-height: 1.65;
+    }
+
+    /* Footer */
+    .doc-ftr {
+      margin-top: 56px; padding-top: 22px;
+      border-top: 1px solid var(--slate-200);
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      color: var(--slate-500); letter-spacing: 0.04em;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+
+    /* Architecture diagram */
+    .arch {
+      margin: 14px 0 22px 0;
+      padding: 22px 24px;
+      background: var(--slate-900);
+      color: white;
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.6;
+      white-space: pre;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">AutoKon<span class="id">.id</span> · Workflow Integration</div>
+  <div class="topnav-links">
+    <a href="index.html">R&D Brief</a>
+    <a href="EVIDENCE_INTEGRITY_RESEARCH.md">MD Source</a>
+  </div>
+  <div class="topnav-meta">v1.0 · 2026-05-01</div>
+</nav>
+
+<div class="layout">
+
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul>
+      <li><a href="#section-1">§1 Architecture context</a></li>
+      <li><a href="#section-2">§2 Project lifecycle</a></li>
+      <li><a href="#section-3">§3 Siteplan workflow</a></li>
+      <li><a href="#section-4">§4 Video workflow</a></li>
+      <li><a href="#section-5">§5 Where they intersect</a></li>
+      <li><a href="#section-6">§6 Phase 0 vs PILOT-30</a></li>
+      <li><a href="#section-7">§7 New schema</a></li>
+      <li><a href="#section-8">§8 Botpress changes</a></li>
+      <li><a href="#section-9">§9 n8n workflows</a></li>
+      <li><a href="#section-10">§10 Open questions</a></li>
+      <li><a href="#section-11">§11 Sequencing</a></li>
+      <li><a href="#section-12">§12 The pitch sentence</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+
+    <header class="doc-hdr">
+      <div class="doc-eyebrow">Workflow Integration · Companion to R&D Brief</div>
+      <h1 class="doc-title" style="margin: 0 0 18px 0;">Siteplan and video in TARA AI's existing pipeline.</h1>
+      <div class="doc-meta">
+        <div class="key">For</div><div class="val"><strong>Dickson</strong> — answer to <em>"How does this fit into the workflow?"</em></div>
+        <div class="key">Authors</div><div class="val">Adrian (VP Product) + Claude Cowork</div>
+        <div class="key">Companion to</div><div class="val">EVIDENCE_INTEGRITY_RESEARCH.md (R&D brief, v1.0)</div>
+        <div class="key">Scope</div><div class="val">Siteplan and video integration only. Other items reference where they touch siteplan/video.</div>
+      </div>
+    </header>
+
+    <!-- Section 1: Architecture -->
+    <section id="section-1">
+      <h1>§1 The architecture we're integrating into</h1>
+      <p>This is not a greenfield design. Siteplan and video must work within TARA AI's existing pipeline:</p>
+
+      <div class="arch">                  ┌──────────────────────────────────────────┐
+                  │  TARA AI · existing production stack      │
+                  └──────────────────────────────────────────┘
+
+   Pelaksana / SM / PM / Bank PIC
+              │
+              ▼
+        ┌──────────┐
+        │ WhatsApp │ ◄──── front-end for all field actors
+        └────┬─────┘
+             │
+             ▼
+        ┌──────────┐
+        │ Botpress │ ◄──── conversational interface,
+        │          │       session state, capture flow,
+        │          │       2.4 Multi with Geo and others
+        └────┬─────┘
+             │
+             ▼
+        ┌──────────┐
+        │   n8n    │ ◄──── workflow orchestration,
+        │          │       1.x ingest workflows,
+        │          │       2.D/E approval workflows,
+        │          │       webhooks to/from external systems
+        └────┬─────┘
+             │
+             ▼
+        ┌──────────┐
+        │ Supabase │ ◄──── Postgres + Storage,
+        │          │       capture_* tables,
+        │          │       capture-photos / capture-reports buckets,
+        │          │       RLS-enforced access
+        └──────────┘
+                              │
+                              ▼
+              ┌─────────────────────────────────┐
+              │  Bank dashboard (operations.    │
+              │  autokon.id) · API for bank     │
+              │  systems · KJPP integration     │
+              └─────────────────────────────────┘</div>
+
+      <div class="callout callout-slate">
+        <strong>Implication:</strong> Every workflow change in this proposal lands in one of those five layers (WhatsApp, Botpress, n8n, Supabase, bank surface). <strong>Nothing requires a new piece of infrastructure.</strong>
+      </div>
+    </section>
+
+    <!-- Section 2: Project lifecycle -->
+    <section id="section-2">
+      <h1>§2 The project lifecycle</h1>
+      <p>Siteplan is <strong>one-time per project</strong>. Video is <strong>per-session, recurring</strong>. Their touchpoints across the project lifecycle:</p>
+
+      <div class="mermaid-wrap">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant Bank
+    participant DevAdmin as Dev Admin
+    participant AutoKon as AutoKon Ops
+    participant Pelaksana
+    participant SM as Site Manager
+    participant PM as Project Manager
+    participant TARA as TARA AI
+
+    rect rgb(239, 246, 255)
+    Note over Bank, TARA: ① ONBOARDING (one-time)
+    Bank->>TARA: Project shell (KodeProper, akta)
+    DevAdmin->>TARA: Upload siteplan PDF
+    TARA->>AutoKon: Parse + annotate
+    AutoKon->>TARA: Confirm unit boundaries
+    DevAdmin->>TARA: Pelaksana onboarding (KTP + voice)
+    end
+
+    rect rgb(255, 247, 237)
+    Note over Bank, TARA: ② KICKOFF (one-time)
+    DevAdmin->>TARA: Pre-construction baseline
+    end
+
+    rect rgb(220, 252, 231)
+    Note over Bank, TARA: ③ PER-SESSION CAPTURE (recurring)
+    Pelaksana->>TARA: Walk-around video (~30s)
+    TARA->>TARA: Validate video
+    Pelaksana->>TARA: Per-spec photos
+    TARA->>TARA: Cross-reference vs video + siteplan
+    end
+
+    rect rgb(254, 243, 199)
+    Note over Bank, TARA: ④ APPROVAL (per session)
+    SM->>TARA: Step 1 + witness yes/no
+    PM->>TARA: Step 2
+    end
+
+    rect rgb(241, 245, 249)
+    Note over Bank, TARA: ⑤ MILESTONE / DRAW
+    DevAdmin->>TARA: Monthly drone (PILOT-30)
+    AutoKon->>TARA: KJPP-routed (Bronze)
+    Bank->>TARA: PIC signs report
+    TARA->>Bank: Disbursement webhook
+    end
+</pre>
+      </div>
+
+      <p><strong>Five phases. Siteplan enters in Phase 1. Video enters in Phase 3 and recurs every session.</strong> The rest deep-dives Phase 1 and Phase 3.</p>
+    </section>
+
+    <!-- Section 3: Siteplan -->
+    <section id="section-3">
+      <h1>§3 Siteplan workflow</h1>
+
+      <h2>3.1 What gets uploaded</h2>
+      <p>A <strong>siteplan PDF</strong> — the standard developer-produced architectural drawing showing the project's unit layout. Most Indonesian developers produce these in AutoCAD / Revit / SketchUp format and export to PDF.</p>
+      <p>What we need from it:</p>
+      <ul>
+        <li>Total unit count</li>
+        <li>Per-unit boundary or centroid (relative coordinates within the siteplan grid)</li>
+        <li>Block / cluster / row groupings (e.g., Block A vs Block B)</li>
+        <li>Project-level GPS anchor</li>
+      </ul>
+
+      <h2>3.2 Upload flow</h2>
+
+      <div class="mermaid-wrap">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant DevAdmin as Dev Admin
+    participant App as autokon-app /<br/>operations.autokon.id
+    participant Storage as Supabase Storage
+    participant n8n
+    participant Claude as Claude Vision
+    participant DB as Supabase DB
+    participant AutoKon as AutoKon Ops
+
+    DevAdmin->>App: Upload siteplan.pdf at project setup
+    App->>Storage: Upload to capture-siteplans bucket
+    Storage->>n8n: Trigger 1.S Siteplan Ingest (NEW)
+    n8n->>Claude: Extract unit boundaries via vision
+    Claude->>n8n: Per-unit relative positions + blocks
+    n8n->>DB: Write capture_siteplans + capture_siteplan_units
+    n8n->>AutoKon: Notify "Siteplan ready for review"
+    AutoKon->>App: Verify or correct unit boundaries
+    App->>DB: Update with verified positions
+    DB->>n8n: Mark "verified" → activate Pillar 3 layers
+</pre>
+      </div>
+
+      <h2>3.3 Storage</h2>
+      <p><strong>New Supabase entities:</strong></p>
+      <ul>
+        <li>Bucket: <code>capture-siteplans</code> — siteplan PDFs (one per project, optionally versioned)</li>
+        <li>Table: <code>capture_siteplans</code> — id, project_id, version, pdf_url, project_anchor_lat/lng, uploaded_by/at, verified_by/at, status</li>
+        <li>Table: <code>capture_siteplan_units</code> — per-unit positions: id, siteplan_id, unit_id, relative_x/y, block, cluster, row, column, predicted_lat/lng</li>
+      </ul>
+
+      <h2>3.4 What the siteplan powers</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pillar 3 item</th><th>How siteplan contributes</th></tr></thead>
+          <tbody>
+            <tr><td>3.1 B Per-unit centroid clustering</td><td>Cold-start solved — each unit has predicted_lat/lng before any photo</td></tr>
+            <tr><td>3.4 E Pre-construction siteplan as anchor</td><td>This IS that solution</td></tr>
+            <tr><td>3.5 Project-level geo-tag</td><td>Auto-derived from siteplan upload</td></tr>
+            <tr><td>3.7 A Centroid-pattern verification</td><td>System checks pattern of centroids matches siteplan layout</td></tr>
+            <tr><td>3.7 B Siteplan-based prediction</td><td>New unit X photos must fall within tolerance of predicted_lat/lng</td></tr>
+            <tr><td>3.7 D Manual siteplan annotation</td><td>Done by AutoKon Ops at upload time</td></tr>
+            <tr><td>3.7 E Drone-overflight as siteplan ground truth</td><td>Drone re-anchors siteplan with surveyor-grade overhead view</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>3.5 Operational asks for siteplan</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Actor</th><th>Ask</th><th>Frequency</th><th>Friction</th></tr></thead>
+          <tbody>
+            <tr><td>Developer admin</td><td>Upload siteplan PDF at project setup</td><td>Once per project</td><td>Low (15 min)</td></tr>
+            <tr><td>AutoKon Ops</td><td>Verify auto-extracted unit boundaries</td><td>Once per project</td><td>Low–medium (15-30 min)</td></tr>
+            <tr><td>Bank PIC</td><td>(Nothing new)</td><td>—</td><td>Zero</td></tr>
+            <tr><td>Pelaksana</td><td>(Nothing new)</td><td>—</td><td>Zero</td></tr>
+            <tr><td>SM / PM</td><td>(Nothing new — siteplan is invisible to them)</td><td>—</td><td>Zero</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-blue">
+        <strong>Critical observation:</strong> Siteplan is a <strong>back-office</strong> integration. It changes nothing about the field workflow. Pelaksana doesn't see it; SM/PM don't see it. It just makes the validation layers smarter.
+      </div>
+    </section>
+
+    <!-- Section 4: Video -->
+    <section id="section-4">
+      <h1>§4 Video workflow</h1>
+
+      <h2>4.1 What gets captured</h2>
+      <p>A <strong>30-second walk-around video</strong> at the start of each capture session. Pelaksana speaks a server-generated phrase aloud during the walk-around (voice OTP). Video uploaded via WhatsApp like any other media.</p>
+      <p>What we extract:</p>
+      <ul>
+        <li><strong>Audio fingerprint</strong> (Pillar 4 Item 4.1)</li>
+        <li><strong>Voice-print</strong> matched against enrolled Pelaksana baseline (Pillar 2 Item 2.3)</li>
+        <li><strong>GPS trace</strong> sampled from frame overlays at start/middle/end (Pillar 3 Item 3.2)</li>
+        <li><strong>Acoustic environment</strong> fingerprint (Pillar 1 Item 1.2 D, Pillar 4 Item 4.6 B)</li>
+        <li><strong>Session anchor</strong> — video's GPS path becomes cross-reference for every photo (Pillar 3 Item 3.3)</li>
+      </ul>
+
+      <h2>4.2 Capture flow (Botpress side)</h2>
+      <p>The existing <code>2.4 Multi with Geo</code> Botpress flow gets extended with a video step:</p>
+
+      <div class="mermaid-wrap">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant Pelaksana
+    participant WA as WhatsApp
+    participant Botpress
+    participant n8n
+    participant Storage as Supabase Storage
+
+    Pelaksana->>WA: Trigger session for unit X stage Y
+    WA->>Botpress: Forward to 2.4 Multi with Geo
+    Botpress->>WA: "Mohon kirim video keliling ~30 detik"<br/>"Sambil rekam, ucapkan: <random phrase>"
+    Pelaksana->>WA: Records walk-around video<br/>(speaks phrase aloud)
+    WA->>Botpress: Forward MP4
+    Botpress->>Storage: Upload to capture-videos bucket
+    Storage->>n8n: Trigger 1.G Video Validation (NEW)
+
+    n8n->>n8n: Frame-sample for GPS overlay
+    n8n->>n8n: Audio fingerprint (spectral)
+    n8n->>n8n: Match voice-print against baseline
+    n8n->>n8n: Multi-point GPS sampling
+    n8n->>n8n: Acoustic environment classifier
+    n8n->>n8n: Call-to-prayer cross-check (if azan)
+
+    alt Video passes
+        n8n->>Botpress: Mark session video_validated
+        Botpress->>WA: "Video OK. Sekarang silakan kirim foto per spek."
+    else Video fails
+        n8n->>Botpress: Reject session with reason
+        Botpress->>WA: "Video tidak valid: [reason]. Ulang."
+    end
+</pre>
+      </div>
+
+      <div class="callout callout-orange">
+        <strong>Key design decisions:</strong>
+        <ul style="margin-top: 8px; margin-bottom: 0;">
+          <li><strong>Video gates the session.</strong> No photos accepted until video passes.</li>
+          <li><strong>Voice OTP is part of the video, not a separate step.</strong> One step, two signals.</li>
+          <li><strong>Audio fingerprint extracted server-side.</strong> WhatsApp recompresses video lossy but preserves audio waveform — that's our forensic moat.</li>
+          <li><strong>Failure mode:</strong> Pelaksana retries. After 3 fails, escalate to SM (operational SOP).</li>
+        </ul>
+      </div>
+
+      <h2>4.3 Per-photo cross-reference (n8n side)</h2>
+      <p>After video validates and Pelaksana submits photos, <code>1.H Bundle Validation</code> cross-references every photo:</p>
+
+      <div class="mermaid-wrap">
+<pre class="mermaid">
+flowchart TD
+    Start[Photo submitted] --> Extract[Extract overlay via Claude<br/>GPS, timestamp, Pelaksana name]
+
+    Extract --> CrossVid{Photo GPS within<br/>10m of video walk-path?}
+    CrossVid -->|Yes| CrossSP{Photo GPS within<br/>2σ of siteplan-predicted<br/>position?}
+    CrossVid -->|No| FailV[FAIL · spatial mismatch]
+
+    CrossSP -->|Yes| TimeWin{Photo timestamp<br/>within video session<br/>± 30 min?}
+    CrossSP -->|No| FailSP[FAIL · siteplan mismatch]
+
+    TimeWin -->|Yes| pHash{pHash unique vs<br/>project history?}
+    TimeWin -->|No| FailT[FAIL · temporal mismatch]
+
+    pHash -->|Yes| LowTech{Low-tech fraud<br/>detectors pass?}
+    pHash -->|No| Recycle[FAIL · photo recycled]
+
+    LowTech -->|Yes| AI{AI-generation<br/>detector pass?}
+    LowTech -->|No| FailLT[FAIL · consumer-app forgery]
+
+    AI -->|Yes| ELA{ELA forgery<br/>detector pass?}
+    AI -->|No| FailAI[FAIL · AI-generated]
+
+    ELA -->|Yes| Pass[PASS · accept photo]
+    ELA -->|No| FailE[FAIL · edit forgery]
+
+    Pass --> Update[Update unit centroid<br/>+ tier score contribution]
+
+    classDef passed fill:#22C55E,color:#fff,stroke:#16a34a
+    classDef failed fill:#EF4444,color:#fff,stroke:#dc2626
+    class Pass,Update passed
+    class FailV,FailSP,FailT,Recycle,FailLT,FailAI,FailE failed
+</pre>
+      </div>
+
+      <p><strong>Per-photo decision is binary</strong> (accept or fail). Session-level scoring aggregates per-photo outcomes into a Gold/Silver/Bronze tier. Bronze sessions route to AutoKon Ops Tier-3 review queue.</p>
+
+      <h2>4.4 Storage</h2>
+      <p><strong>New Supabase entities:</strong></p>
+      <ul>
+        <li>Bucket: <code>capture-videos</code> — walk-around videos</li>
+        <li>Table: <code>capture_videos</code> — id, session_id, unit_id, pelaksana_id, mp4_url, audio_fingerprint_hash, audio_spectral_fp, voice_print_match, gps_trace, acoustic_environment_class, azan_detected/match, validation_status, failure_reason</li>
+        <li>Extension to <code>capture_unit_stages</code>: <code>session_video_id</code> FK</li>
+        <li>Extension to <code>capture_photos</code>: <code>p_hash</code>, <code>cross_ref_status</code> JSONB, <code>tier_contribution</code></li>
+      </ul>
+
+      <h2>4.5 New n8n workflows</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Workflow</th><th>Status</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>1.G Video Validation</code></td><td>NEW</td><td>Multi-layer video validation (audio fp, voice-print, GPS trace, environment, azan)</td></tr>
+            <tr><td><code>1.H Bundle Validation</code></td><td>NEW</td><td>Per-photo cross-reference vs video + siteplan + pHash + low-tech + AI + ELA</td></tr>
+            <tr><td><code>1.S Siteplan Ingest</code></td><td>NEW</td><td>Parse PDF, write capture_siteplan_units, notify AutoKon Ops</td></tr>
+            <tr><td><code>1.G2 Drone Ingest</code></td><td>NEW (PILOT-30)</td><td>Updates siteplan from monthly drone overflight</td></tr>
+            <tr><td><code>2.4 Multi with Geo</code></td><td>EXTENDED</td><td>Botpress flow now requires video before photos</td></tr>
+            <tr><td>All other 2.x flows</td><td>UNCHANGED</td><td>Approval workflows continue as-is</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>4.6 What video powers</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pillar / item</th><th>How video contributes</th></tr></thead>
+          <tbody>
+            <tr><td>1.2 D Cross-photo consistency via video</td><td>Video is the consistency anchor</td></tr>
+            <tr><td>2.3 A Voice OTP</td><td>Voice OTP is in the video</td></tr>
+            <tr><td>2.3 B Passive voice signature</td><td>Background speech analyzed</td></tr>
+            <tr><td>3.2 A-D Video site presence</td><td>This IS the video</td></tr>
+            <tr><td>3.3 A-C Video-photo GPS cross-reference</td><td>Photos checked against video walk-path</td></tr>
+            <tr><td>4.1 A-E Audio fingerprint</td><td>Audio extracted from video</td></tr>
+            <tr><td>4.6 B Call-to-prayer cross-check</td><td>Audio classifier on video audio</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-green">
+        <strong>One 30-second video, seven validation layers.</strong> Highest leverage capture step in the pipeline.
+      </div>
+
+      <h2>4.7 Operational asks for video</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Actor</th><th>Ask</th><th>Frequency</th><th>Friction</th></tr></thead>
+          <tbody>
+            <tr><td>Pelaksana</td><td>Record + send 30s walk-around video at session start</td><td>Per session</td><td><strong>Medium-high — real behavior change</strong></td></tr>
+            <tr><td>Pelaksana</td><td>Speak server-generated phrase during video</td><td>Per session</td><td>Low — adds 5-10s to video</td></tr>
+            <tr><td>SM / PM</td><td>(Nothing new at capture)</td><td>—</td><td>Zero</td></tr>
+            <tr><td>AutoKon Ops</td><td>Tier-3 review queue (Bronze sessions)</td><td>Daily</td><td>Medium — operational design needed</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>The Pelaksana behavior change is the binding constraint.</strong> Everything else is server-side automation. If Pelaksana adoption fails, the whole video pillar fails.</p>
+      <p><strong>Mitigation:</strong> Botpress flow makes the ask trivial. Existing pengawas already submit photos via WhatsApp; submitting a video is a single extra media-send. Voice prompt is server-generated phrase to read aloud — natural narration, not awkward.</p>
+    </section>
+
+    <!-- Section 5: Intersection -->
+    <section id="section-5">
+      <h1>§5 Where siteplan and video intersect</h1>
+      <p>The <strong>per-photo unified validation</strong> (§4.3 flowchart) is where they meet. Each photo's GPS is cross-checked against:</p>
+      <ol>
+        <li><strong>Video walk-path</strong> (temporal anchor — "did Pelaksana physically walk past this point during the recorded video session?")</li>
+        <li><strong>Siteplan-predicted position</strong> (spatial anchor — "is this where unit X should be according to the siteplan?")</li>
+      </ol>
+      <p><strong>Both must pass.</strong> Either failure flags the photo. Together they form 2D verification: temporal + spatial.</p>
+
+      <div class="callout callout-orange">
+        <strong>The combined story for the bank pitch:</strong>
+        <blockquote style="margin-top: 10px; padding-left: 14px; border-left-color: var(--orange-600);">
+          "Every photo is anchored in two dimensions: the walk-around video proves Pelaksana was physically there during the session, and the siteplan-relative pattern proves the photo is from the correct unit — not the one next door. Neither alone is sufficient; both are required."
+        </blockquote>
+      </div>
+
+      <p>This is uniquely strong because:</p>
+      <ul>
+        <li><strong>Video alone</strong> tells us Pelaksana was on-site, but not which unit's photo this is</li>
+        <li><strong>Siteplan alone</strong> tells us which unit a photo claims to be, but not whether Pelaksana was actually there</li>
+        <li><strong>Together</strong> they pin down both place and time with high confidence</li>
+      </ul>
+    </section>
+
+    <!-- Section 6 -->
+    <section id="section-6">
+      <h1>§6 Phase 0 vs PILOT-30</h1>
+
+      <h2>What ships now (Phase 0)</h2>
+      <ul>
+        <li>Botpress flow extension: video at session start (<code>2.4 Multi with Geo</code>)</li>
+        <li>n8n workflows <code>1.G</code> + <code>1.H</code> (Dickson's prototype already proves these)</li>
+        <li>Supabase schema additions (capture_videos, capture_siteplans, capture_siteplan_units, photo extensions)</li>
+        <li>Siteplan upload UI on developer-admin web</li>
+        <li>AutoKon Ops review tool for siteplan annotation</li>
+        <li>Audio fingerprint (direct hash) — Dickson shipped</li>
+        <li><strong>Audio spectral fingerprint upgrade</strong> — week of engineering</li>
+        <li>Multi-point GPS sampling on video</li>
+        <li>pHash + low-tech fraud detectors per photo</li>
+        <li><strong>Centroid-pattern verification</strong> (after ~5 photos)</li>
+        <li><strong>Siteplan-based prediction</strong> (cold-start solved)</li>
+        <li>Video-photo GPS cross-reference — Dickson shipped</li>
+        <li>Photo cross-check vs siteplan-predicted position</li>
+      </ul>
+
+      <h2>What ships in PILOT-30</h2>
+      <ul>
+        <li><strong>Voice-print</strong> per Pelaksana — speaker-ID model + enrollment flow</li>
+        <li><strong>Acoustic environment</strong> classifier — ML model training</li>
+        <li><strong>Call-to-prayer</strong> azan detector + muezzin schedule</li>
+        <li><strong>Drone overflight</strong> ingest (1.G2 workflow)</li>
+        <li><strong>BMKG weather</strong> correlation</li>
+        <li>AI-generation detector — vendor selection</li>
+      </ul>
+
+      <h2>Deferred</h2>
+      <ul>
+        <li>C2PA content credentials (waits on phone fleet upgrade ~2027+)</li>
+        <li>Custom AutoKon camera app (resolves Play Integrity + overlay-spoof)</li>
+        <li>HSM keys, WAL export, event-sourcing rewrites</li>
+        <li>PRNU sensor fingerprinting</li>
+      </ul>
+    </section>
+
+    <!-- Section 7 -->
+    <section id="section-7">
+      <h1>§7 New schema summary</h1>
+      <pre>-- New table: capture_siteplans
+CREATE TABLE capture_siteplans (
+  id UUID PRIMARY KEY,
+  project_id UUID REFERENCES capture_projects(id),
+  version INT DEFAULT 1,
+  pdf_url TEXT NOT NULL,
+  project_anchor_lat NUMERIC,
+  project_anchor_lng NUMERIC,
+  uploaded_by UUID, uploaded_at TIMESTAMPTZ,
+  verified_by UUID, verified_at TIMESTAMPTZ,
+  status TEXT CHECK (status IN ('pending','verified','superseded'))
+);
+
+-- New table: capture_siteplan_units
+CREATE TABLE capture_siteplan_units (
+  id UUID PRIMARY KEY,
+  siteplan_id UUID REFERENCES capture_siteplans(id),
+  unit_id UUID REFERENCES capture_units(id),
+  relative_x NUMERIC, relative_y NUMERIC,
+  block TEXT, cluster TEXT, row_num TEXT, col_num TEXT,
+  predicted_lat NUMERIC, predicted_lng NUMERIC
+);
+
+-- New table: capture_videos
+CREATE TABLE capture_videos (
+  id UUID PRIMARY KEY,
+  session_id UUID,
+  unit_id UUID REFERENCES capture_units(id),
+  pelaksana_id UUID REFERENCES capture_users(id),
+  mp4_url TEXT NOT NULL, duration_sec INT,
+  uploaded_at TIMESTAMPTZ DEFAULT now(),
+  audio_fingerprint_hash TEXT,
+  audio_spectral_fp JSONB,
+  voice_print_match NUMERIC,
+  gps_trace JSONB,
+  acoustic_environment_class TEXT,
+  azan_detected BOOLEAN, azan_schedule_match BOOLEAN,
+  validation_status TEXT, failure_reason TEXT
+);
+
+-- Extensions
+ALTER TABLE capture_unit_stages
+  ADD COLUMN session_video_id UUID REFERENCES capture_videos(id);
+
+ALTER TABLE capture_photos
+  ADD COLUMN p_hash TEXT,
+  ADD COLUMN cross_ref_status JSONB,
+  ADD COLUMN tier_contribution TEXT;</pre>
+    </section>
+
+    <!-- Section 8 -->
+    <section id="section-8">
+      <h1>§8 Botpress flow changes</h1>
+      <p><code>2.4 Multi with Geo</code> existing flow gets two changes:</p>
+      <ol>
+        <li><strong>Pre-photo video step</strong> — at session start, prompt for walk-around video. Wait for <code>1.G Video Validation</code> to return pass before unlocking photo capture.</li>
+        <li><strong>Voice OTP injection</strong> — server generates a random phrase (Bahasa, project-specific), Botpress shows it in the video prompt.</li>
+      </ol>
+      <p><strong>No other Botpress flows need changes.</strong> SM/PM approval flows extend with witness yes/no prompt (Item 5.4 — separate change, not in scope here).</p>
+    </section>
+
+    <!-- Section 9 -->
+    <section id="section-9">
+      <h1>§9 n8n workflows summary</h1>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Workflow ID</th><th>Status</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>1.S Siteplan Ingest</code></td><td>NEW</td><td>Parse PDF, write capture_siteplan_units, notify AutoKon Ops</td></tr>
+            <tr><td><code>1.G Video Validation</code></td><td>NEW</td><td>Multi-layer video validation</td></tr>
+            <tr><td><code>1.H Bundle Validation</code></td><td>NEW</td><td>Per-photo cross-reference</td></tr>
+            <tr><td><code>1.G2 Drone Ingest</code></td><td>NEW (PILOT-30)</td><td>Updates siteplan from monthly drone</td></tr>
+            <tr><td><code>2.4 Multi with Geo</code></td><td>EXTENDED</td><td>Video required before photos</td></tr>
+            <tr><td>All other 2.x flows</td><td>UNCHANGED</td><td>Approval workflows as-is</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 10 -->
+    <section id="section-10">
+      <h1>§10 Open questions</h1>
+      <ol>
+        <li><strong>Siteplan upload UI surface</strong> — autokon-app (developer-side) or operations.autokon.id (Command Center side)? Recommendation: developer-side, owner uploads, AutoKon Ops verifies.</li>
+        <li><strong>Video bandwidth tolerance</strong> — 10MB per video on weak connections in eastern Indonesia. Pelaksana uploads from home WiFi at end of day acceptable?</li>
+        <li><strong>Voice OTP phrase format</strong> — fixed template ("Hari ini tanggal X, unit Y") or randomly-generated word combinations? Template easier; random harder to spoof.</li>
+        <li><strong>Video failure SOP</strong> — what happens if Pelaksana fails 3 times? Auto-escalate to SM? Allow override?</li>
+        <li><strong>AutoKon Ops siteplan review SLA</strong> — how long can siteplan sit in "pending"? Recommendation: 24-48h max.</li>
+        <li><strong>Drone overflight cadence</strong> — for PILOT-30 drone-equipped developers: monthly? weekly? per major milestone?</li>
+      </ol>
+    </section>
+
+    <!-- Section 11 -->
+    <section id="section-11">
+      <h1>§11 Recommended sequencing</h1>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Sprint</th><th>Phase</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Sprint 1</strong></td>
+              <td>Phase 0 foundations</td>
+              <td>Schema migrations · Siteplan upload + 1.S workflow + AutoKon Ops review tool · Video upload + 1.G basics (audio fp, GPS, frame-sampling)</td>
+            </tr>
+            <tr>
+              <td><strong>Sprint 2</strong></td>
+              <td>Phase 0 cross-reference</td>
+              <td>1.H Bundle Validation · Centroid clustering + siteplan-based prediction · Per-photo low-tech fraud detectors (1.6 A-D) · Spectral fingerprint upgrade</td>
+            </tr>
+            <tr>
+              <td><strong>Sprint 3</strong></td>
+              <td>Phase 0 polish</td>
+              <td>Tier-3 review queue UX · Bronze submission routing · SM witness prompt (5.4 A) · WORM storage migration</td>
+            </tr>
+            <tr>
+              <td><strong>PILOT-30 sprint</strong></td>
+              <td>After first signed pilot</td>
+              <td>Voice-print enrollment + matching · BMKG correlation · Call-to-prayer detector · Drone ingest (1.G2) · KYC partnership integration</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>This sequences the workflow so Pelaksana behavior change (video) lands in Sprint 1 while validation cascade (1.H) lands in Sprint 2 — giving us a 2-week pilot window to observe Pelaksana adoption rate before the cascade goes live.</p>
+    </section>
+
+    <!-- Section 12 -->
+    <section id="section-12">
+      <h1>§12 The bank-pitch sentence this enables</h1>
+
+      <div class="callout callout-blue">
+        <blockquote style="font-size: 16px; line-height: 1.6; color: var(--slate-900); border-left-color: var(--blue-600);">
+          "Every photo is anchored in two dimensions. The walk-around video proves the Pelaksana was physically present during the recorded session — verified by audio fingerprint, voice-print, and GPS trace. The siteplan-relative pattern proves the photo is from the correct unit, not the one next door — verified against the developer's own siteplan. Neither alone is sufficient. Both are required. That's how AutoKon makes adjacent-unit confusion impossible at scale."
+        </blockquote>
+      </div>
+
+      <p>That's the operational design behind the pitch. <strong>Siteplan + video aren't features — they're the architectural backbone</strong> of every Pillar 3 (Place) and most of Pillar 4 (Time) verification.</p>
+    </section>
+
+    <footer class="doc-ftr">
+      <div>AutoKon · Workflow Integration · Companion to R&D Brief · 2026-05-01</div>
+      <div>Adrian + Claude Cowork</div>
+    </footer>
+
+  </main>
+
+</div>
+
+<script>
+  // Initialize Mermaid with brand-aligned theme
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+      primaryColor: '#EFF6FF',
+      primaryBorderColor: '#2563EB',
+      primaryTextColor: '#0F172A',
+      lineColor: '#475569',
+      fontSize: '13px',
+      fontFamily: 'Inter, sans-serif',
+    },
+    sequence: {
+      actorMargin: 50,
+      boxMargin: 12,
+      noteMargin: 10,
+      messageMargin: 35,
+      mirrorActors: false,
+    },
+    flowchart: {
+      curve: 'basis',
+      padding: 16,
+    },
+  });
+
+  // TOC active highlight
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = document.querySelectorAll('section[id]');
+  function updateActive() {
+    let activeId = null;
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 120 && rect.bottom >= 120) activeId = s.id;
+    });
+    tocLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + activeId);
+    });
+  }
+  document.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

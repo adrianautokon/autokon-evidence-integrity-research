@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoKon — SLA, Metrics & Confidence Proposal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-50: #EFF6FF; --blue-600: #2563EB; --blue-700: #1D4ED8;
+      --orange-50: #FFF7ED; --orange-500: #F7941D; --orange-600: #FF7426; --orange-700: #C2410C;
+      --slate-25: #FBFCFE; --slate-50: #F8FAFC; --slate-100: #F1F5F9; --slate-200: #E2E8F0;
+      --slate-300: #CBD5E1; --slate-400: #94A3B8; --slate-500: #64748B; --slate-600: #475569;
+      --slate-700: #334155; --slate-800: #1E293B; --slate-900: #0F172A;
+      --green-50: #DCFCE7; --green-700: #166534;
+      --red-50: #FEE2E2; --red-700: #991B1B;
+      --amber-50: #FEF3C7; --amber-700: #92400E;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--slate-25); color: var(--slate-900);
+      -webkit-font-smoothing: antialiased; line-height: 1.6;
+    }
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(251, 252, 254, 0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 14px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .brand { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+    .brand .id { color: var(--slate-500); font-weight: 500; }
+    .topnav-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate-500); letter-spacing: 0.04em; }
+    .topnav-links { display: flex; gap: 16px; }
+    .topnav-links a {
+      color: var(--slate-600); text-decoration: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .topnav-links a:hover { color: var(--slate-900); }
+
+    .layout {
+      display: grid; grid-template-columns: 260px 1fr;
+      max-width: 1400px; margin: 0 auto;
+      min-height: calc(100vh - 56px);
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+    }
+    .toc {
+      position: sticky; top: 64px; height: calc(100vh - 64px);
+      overflow-y: auto;
+      padding: 32px 24px; border-right: 1px solid var(--slate-200);
+      background: var(--slate-50);
+    }
+    .toc-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--slate-500); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .toc ul { list-style: none; padding: 0; }
+    .toc li { margin-bottom: 4px; }
+    .toc a {
+      display: block; padding: 5px 8px; border-radius: 4px;
+      font-size: 13px; line-height: 1.4;
+      color: var(--slate-700); text-decoration: none;
+    }
+    .toc a:hover { background: white; color: var(--slate-900); }
+    .toc a.active { background: var(--blue-600); color: white; font-weight: 600; }
+    .toc .group { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px; color: var(--slate-900); margin-top: 18px; margin-bottom: 6px; padding: 0 8px; }
+    .main {
+      padding: 48px 56px 96px; min-width: 0;
+      max-width: 1000px;
+    }
+    .doc-hdr {
+      padding-bottom: 32px; border-bottom: 2px solid var(--slate-900);
+      margin-bottom: 40px;
+    }
+    .doc-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      color: var(--orange-600); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .doc-title {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 38px; line-height: 1.1; letter-spacing: -0.02em;
+      color: var(--slate-900); margin-bottom: 18px;
+    }
+    .doc-meta {
+      display: grid; grid-template-columns: 110px 1fr; gap: 6px 16px;
+      font-size: 13px; line-height: 1.5;
+    }
+    .doc-meta .key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--slate-500); text-transform: uppercase; padding-top: 3px;
+    }
+    .doc-meta .val { color: var(--slate-700); }
+    .doc-meta strong { color: var(--slate-900); font-weight: 600; }
+
+    h1 {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 28px; line-height: 1.15; letter-spacing: -0.02em;
+      color: var(--slate-900);
+      margin: 48px 0 14px 0;
+      scroll-margin-top: 80px;
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 20px; line-height: 1.2; letter-spacing: -0.01em;
+      color: var(--slate-900);
+      margin: 36px 0 12px 0;
+      padding-bottom: 8px; border-bottom: 1px solid var(--slate-200);
+      scroll-margin-top: 80px;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      font-size: 16px; line-height: 1.3;
+      color: var(--slate-900);
+      margin: 24px 0 8px 0;
+    }
+    p {
+      font-size: 14.5px; line-height: 1.7; color: var(--slate-700);
+      margin-bottom: 14px;
+    }
+    p strong, li strong { color: var(--slate-900); font-weight: 600; }
+    em { color: var(--slate-600); }
+    ul, ol { padding-left: 22px; margin-bottom: 16px; }
+    li { margin-bottom: 6px; line-height: 1.65; color: var(--slate-700); font-size: 14.5px; }
+    .table-wrap { margin: 14px 0 22px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.45; }
+    table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+      color: var(--slate-500); text-transform: uppercase;
+      background: var(--slate-50); padding: 9px 10px;
+      border-bottom: 2px solid var(--slate-300);
+      text-align: left; vertical-align: top;
+    }
+    table td { padding: 8px 10px; border-bottom: 1px solid var(--slate-100); vertical-align: top; }
+    table tr:last-child td { border-bottom: 1px solid var(--slate-300); }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; line-height: 1.55;
+      background: var(--slate-900); color: var(--slate-200);
+      padding: 16px 20px; border-radius: 8px;
+      overflow-x: auto; margin: 14px 0 20px 0;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92em; background: var(--slate-100);
+      padding: 1px 5px; border-radius: 3px;
+      color: var(--slate-800); font-weight: 500;
+    }
+    .callout {
+      padding: 14px 20px; border-radius: 6px;
+      margin: 16px 0 22px 0;
+      font-size: 14px; line-height: 1.6;
+    }
+    .callout-blue { background: var(--blue-50); border-left: 4px solid var(--blue-600); color: var(--slate-800); }
+    .callout-orange { background: var(--orange-50); border-left: 4px solid var(--orange-600); color: var(--slate-800); }
+    .callout-green { background: var(--green-50); border-left: 4px solid var(--green-700); color: var(--slate-800); }
+    .callout-slate { background: var(--slate-100); border-left: 4px solid var(--slate-700); color: var(--slate-800); }
+    .callout-red { background: var(--red-50); border-left: 4px solid var(--red-700); color: var(--slate-800); }
+    .callout strong { color: var(--slate-900); }
+    blockquote {
+      border-left: 4px solid var(--slate-300);
+      padding: 4px 0 4px 18px;
+      margin: 14px 0 22px 4px;
+      font-style: italic; color: var(--slate-600);
+      font-size: 14.5px; line-height: 1.65;
+    }
+    .doc-ftr {
+      margin-top: 56px; padding-top: 22px;
+      border-top: 1px solid var(--slate-200);
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      color: var(--slate-500); letter-spacing: 0.04em;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .tldr {
+      background: var(--slate-100); border-left: 4px solid var(--slate-900);
+      padding: 22px 28px; border-radius: 0 8px 8px 0;
+      margin-bottom: 32px;
+    }
+    .tldr h2 {
+      margin: 0 0 12px 0; padding: 0; border: none;
+      font-size: 13px; text-transform: uppercase;
+      letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace;
+      color: var(--slate-700); font-weight: 700;
+    }
+    .tldr ul { margin-bottom: 0; }
+    .tldr li { font-size: 14px; }
+    .phase {
+      margin: 18px 0; padding: 18px 22px; border-radius: 8px;
+    }
+    .phase-pilot { background: var(--blue-600); color: white; }
+    .phase-steady { background: var(--green-700); color: white; }
+    .phase h3 { color: inherit; margin-top: 0; }
+    .phase ul, .phase li { color: inherit; }
+    .phase strong { color: inherit; }
+    .pushback {
+      background: var(--slate-50);
+      border-left: 3px solid var(--slate-700);
+      padding: 16px 20px; border-radius: 0 6px 6px 0;
+      margin: 14px 0;
+    }
+    .pushback .q {
+      font-weight: 700; color: var(--slate-900);
+      margin-bottom: 6px;
+      font-family: 'Poppins', sans-serif;
+    }
+    .pushback .a {
+      font-size: 13.5px; color: var(--slate-700);
+      line-height: 1.65; font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">AutoKon<span class="id">.id</span> · SLA Proposal</div>
+  <div class="topnav-links">
+    <a href="index.html">R&amp;D Brief</a>
+    <a href="workflow.html">Workflow</a>
+    <a href="SLA_PROPOSAL.md">MD Source</a>
+  </div>
+  <div class="topnav-meta">v1.0 · 2026-05-01</div>
+</nav>
+
+<div class="layout">
+
+  <aside class="toc">
+    <div class="toc-title">Contents</div>
+    <ul>
+      <li><a href="#tldr">TL;DR</a></li>
+      <li class="group">Dickson's Questions</li>
+      <li><a href="#section-1">§1 Confidence (Q1)</a></li>
+      <li><a href="#section-2">§2 Realism (Q2)</a></li>
+      <li><a href="#section-3">§3 Measurement (Q3)</a></li>
+      <li class="group">SLA Schedule</li>
+      <li><a href="#section-4">§4 Pilot SLAs (M1-6)</a></li>
+      <li><a href="#section-5">§5 Steady-state (M7+)</a></li>
+      <li><a href="#section-6">§6 Service credits</a></li>
+      <li class="group">Defending the Proposal</li>
+      <li><a href="#section-7">§7 What we don't commit</a></li>
+      <li><a href="#section-8">§8 Industry benchmarks</a></li>
+      <li><a href="#section-9">§9 Negotiation pushbacks</a></li>
+      <li><a href="#section-10">§10 Open questions</a></li>
+      <li><a href="#section-11">§11 One paragraph</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+
+    <header class="doc-hdr">
+      <div class="doc-eyebrow">Commercial Annex · SLA, Metrics & Confidence Proposal</div>
+      <h1 class="doc-title" style="margin: 0 0 18px 0;">What we commit to the bank, and what we don't.</h1>
+      <div class="doc-meta">
+        <div class="key">Answers</div><div class="val">Dickson's four questions: confidence · realism · measurement · SLA numbers</div>
+        <div class="key">Companion to</div><div class="val">EVIDENCE_INTEGRITY_RESEARCH.md (R&amp;D brief) + WORKFLOW_INTEGRATION.md</div>
+        <div class="key">For</div><div class="val">Dickson + commercial counterparties + bank legal/risk teams + Faishal</div>
+        <div class="key">Penalty structure</div><div class="val">Service credits only — standard SaaS B2B pattern. No cash penalties, no claw-backs.</div>
+        <div class="key">Phasing</div><div class="val">Pilot SLAs (months 1-6) + steady-state SLAs (month 7+) calibrated to observed pilot data</div>
+      </div>
+    </header>
+
+    <section id="tldr">
+      <div class="tldr">
+        <h2>TL;DR</h2>
+        <ul style="padding-left: 18px; margin-top: 8px;">
+          <li><strong>We commit hard on uptime, performance, coverage.</strong> These are deterministic and within our control.</li>
+          <li><strong>We commit thoughtfully on effectiveness.</strong> Pre-pilot, only deterministic-mathematics-backed numbers (e.g., recycled photo detection via pHash). ML-driven effectiveness numbers calibrate post-pilot.</li>
+          <li><strong>Pilot phase (months 1-6):</strong> process + coverage SLAs are live with service credits. Effectiveness is best-effort with quarterly joint review with the bank's risk team. No effectiveness penalties.</li>
+          <li><strong>Steady-state phase (month 7+):</strong> effectiveness SLAs activate, calibrated to observed pilot data. Service-credit penalties on misses.</li>
+          <li><strong>What we explicitly DO NOT commit:</strong> raw fraud-detection rates as a single number. Stripe Radar doesn't. Sumsub doesn't. Onfido doesn't. We follow industry pattern.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="section-1">
+      <h1>§1 Confidence framework <span style="font-size: 16px; color: var(--slate-500); font-weight: 400;">— Dickson Q1: "How confident is the outcome going to be for production?"</span></h1>
+
+      <p>The 35 items in the brief fall into five confidence bands:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Band</th><th>Share</th><th>Confidence basis</th></tr></thead>
+          <tbody>
+            <tr><td><strong>HIGH</strong> (deterministic, shipped)</td><td>~50%</td><td>Already in production at app.autokon.id, or extending shipped substrate, or off-the-shelf with deterministic behavior</td></tr>
+            <tr><td><strong>HIGH-MEDIUM</strong> (engineering hardening)</td><td>~20%</td><td>Engineering straightforward; threshold tuning during pilot</td></tr>
+            <tr><td><strong>MEDIUM</strong> (ML-training-dependent)</td><td>~15%</td><td>Depends on labeled training data quality</td></tr>
+            <tr><td><strong>MEDIUM</strong> (vendor-partnership)</td><td>~10%</td><td>Technical confidence high; depends on external partner timelines</td></tr>
+            <tr><td><strong>CONDITIONAL</strong> (pilot-discoverable)</td><td>~5%</td><td>Cannot model from architecture alone; pilot data answers</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>1.1 The HIGH band (50%) — already proven or trivially deterministic</h2>
+      <p>pHash photo recycling · Trusted-source overlay (Claude OCR) · Phone whitelist · Project bbox check · Video site presence · Multi-point GPS · Video-photo GPS cross-reference · Audio fingerprint (direct + spectral) · Photo freshness + monotonic · Multi-step approval · WORM storage · Botpress witness yes/no prompt · KJPP at fixed milestones</p>
+
+      <h2>1.2 The CONDITIONAL band (5%) — the binding production-confidence variable</h2>
+      <div class="callout callout-orange">
+        <strong>The single biggest production-confidence risk is not technical — it's whether Pelaksana actually records and uploads the walk-around video reliably.</strong> That's the one variable we cannot model from architecture alone. Everything else has either shipped or has a precedent.
+      </div>
+
+      <h3>The honest sentence to a bank security team</h3>
+      <blockquote>
+        "Half the system is in production today, screening real construction evidence. Twenty percent is incremental engineering on that proven substrate. Fifteen percent requires labeled pilot data to calibrate. Ten percent depends on vendor partnerships — Privy, Sumsub, BMKG — that we either have or will sign in your pilot. Five percent — Pelaksana behavior change — is the variable we ship to learn. We're not promising perfection. We're promising you a system whose confidence scales as we run it together."
+      </blockquote>
+    </section>
+
+    <section id="section-2">
+      <h1>§2 Realism rating <span style="font-size: 16px; color: var(--slate-500); font-weight: 400;">— Dickson Q2: "Is it realistic?"</span></h1>
+
+      <h2>2.1 Realistic for default flow (~90% of Phase 0)</h2>
+      <p>HIGH-band items + most HIGH-MEDIUM items + 1.6 A-D low-tech consumer-app fraud detectors + 3.7 A-B siteplan-relative cross-reference + 5.2 D WORM storage + 5.4 A Botpress witness prompt.</p>
+      <p><strong>Realism risk: minimal.</strong> No new infrastructure, no new behavior asks beyond the 30-second video.</p>
+
+      <h2>2.2 Realistic only as PILOT-30 paid commitments (~5%)</h2>
+      <p>Multi-model AI ensemble · KYC partnership · Voice-print ML · Call-to-prayer detector · RFC 3161 TSA · Drone overflight ingest · RT/RW witness program · Privy/eMeterai signing.</p>
+      <p><strong>Realism risk: depends on commercial structure.</strong> If first signed bank pilot funds these as PILOT-30 commitments, realism is high.</p>
+
+      <h2>2.3 Not realistic short-term (~5%) — roadmap-only naming</h2>
+      <p>C2PA content credentials (waits for ~2027+ phone fleet) · Android Play Integrity (custom app required) · HSM keys (multi-quarter) · Database WAL export · Event-sourcing rewrite · PRNU sensor fingerprint · BPN data integration (partnership-blocked).</p>
+      <p><strong>Realism risk: high if treated as ship items.</strong> Honest framing: "we have the architectural framework to add these when conditions are right."</p>
+
+      <h2>2.4 The single biggest realism question — Pelaksana adoption</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Period</th><th>Estimated adoption</th></tr></thead>
+          <tbody>
+            <tr><td>Month 1</td><td>70-80% (early adopters + SM enforcement)</td></tr>
+            <tr><td>Month 3</td><td>85-92% (Pelaksana habit forms)</td></tr>
+            <tr><td>Month 6</td><td>90-95% (steady state)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Mitigation if adoption is below estimate: SM-enforced gate · bonus structure for compliant Pelaksana · Botpress UX iteration · voice-OTP phrase simplification.</p>
+      <p><strong>Realistic posture: high confidence in upper-end of range; commit to lower-end as SLA floor.</strong></p>
+    </section>
+
+    <section id="section-3">
+      <h1>§3 Metrics framework <span style="font-size: 16px; color: var(--slate-500); font-weight: 400;">— Dickson Q3: "How do we measure the results?"</span></h1>
+
+      <h2>3.1 Coverage metrics (system-deterministic)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>Pipeline screening coverage</td><td>100%</td></tr>
+            <tr><td>Bronze tier human review</td><td>100%</td></tr>
+            <tr><td>Audit trail capture</td><td>100%</td></tr>
+            <tr><td>Schema integrity</td><td>100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>3.2 Process performance metrics (deterministic)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>Submission acknowledgment time</td><td>&lt; 5 min, p95</td></tr>
+            <tr><td>Validation pipeline completion</td><td>&lt; 30 min, p95</td></tr>
+            <tr><td>Tier-3 review SLA</td><td>&lt; 24 hours, p95</td></tr>
+            <tr><td>Report generation</td><td>&lt; 2 hours, p95</td></tr>
+            <tr><td>Bank webhook delivery</td><td>&lt; 1 min, p95</td></tr>
+            <tr><td>System uptime</td><td>99.5% monthly</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>3.3 Detection effectiveness metrics (require pilot data)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Pilot baseline</th><th>Steady-state</th></tr></thead>
+          <tbody>
+            <tr><td>Recycled photo detection (deterministic)</td><td>≥ 95%</td><td>≥ 98%</td></tr>
+            <tr><td>Stale photo replay (deterministic)</td><td>≥ 95%</td><td>≥ 99%</td></tr>
+            <tr><td>Adjacent-unit confusion (with siteplan)</td><td>≥ 60%</td><td>≥ 80%</td></tr>
+            <tr><td>AI-generated photo detection</td><td>≥ 70%</td><td>≥ 85%</td></tr>
+            <tr><td>False-positive rate</td><td>≤ 8%</td><td>≤ 3%</td></tr>
+            <tr><td>Tier distribution: Gold</td><td>TBD pilot</td><td>≥ 70%</td></tr>
+            <tr><td>Tier distribution: Bronze</td><td>TBD pilot</td><td>≤ 10%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-blue">
+        <strong>Critical note:</strong> Pilot-baseline numbers are <strong>defensible commit floors</strong> based on Dickson's prototype data + industry benchmarks. Steady-state numbers calibrate after 6 months of pilot data.
+      </div>
+
+      <h2>3.4 Adoption metrics (operational signal)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>Pelaksana session-with-video rate</td><td>≥ 85% (M3), ≥ 95% (M6+)</td></tr>
+            <tr><td>Voice OTP success rate</td><td>≥ 90% (M3), ≥ 96% (M6+)</td></tr>
+            <tr><td>SM witness response rate</td><td>≥ 95%</td></tr>
+            <tr><td>Tier-3 review queue depth</td><td>&lt; 50 sessions</td></tr>
+            <tr><td>Pelaksana support tickets per 100 sessions</td><td>&lt; 5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>3.5 Outcome metrics (comparative)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>KJPP visit reduction vs baseline</td><td>≥ 50% by M6</td></tr>
+            <tr><td>Time-to-disbursement</td><td>≤ 36 hours, p90</td></tr>
+            <tr><td>Fraud loss reduction vs baseline</td><td>≥ 60% by M12</td></tr>
+            <tr><td>Bank credit officer NPS</td><td>≥ 7/10</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-4">
+      <h1>§4 SLA schedule — Pilot phase (months 1-6) <span style="font-size: 16px; color: var(--slate-500); font-weight: 400;">— answering Dickson Q4 part one</span></h1>
+
+      <div class="phase phase-pilot">
+        <h3>Pilot phase posture</h3>
+        <p style="color: white; margin-bottom: 0;"><strong>Commit hard on what we control. Calibrate on what depends on real data.</strong> Service credits on misses; no cash penalties.</p>
+      </div>
+
+      <h2>4.1 Process SLAs (active day 1 with service credits)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>SLA</th><th>Commitment</th><th>Service credit if missed</th></tr></thead>
+          <tbody>
+            <tr><td>System uptime</td><td>99.5% monthly</td><td>5% per 0.1% below 99.5%, capped at 50%</td></tr>
+            <tr><td>Submission acknowledgment</td><td>&lt; 5 min p95</td><td>2% per 5% over threshold</td></tr>
+            <tr><td>Validation pipeline completion</td><td>&lt; 30 min p95</td><td>2% if &gt; 30 min for &gt; 5%</td></tr>
+            <tr><td>Tier-3 Bronze review</td><td>&lt; 24 hours p95</td><td>3% per 5% over 24h</td></tr>
+            <tr><td>Report generation</td><td>&lt; 2 hours p95</td><td>2% if &gt; 2h for &gt; 5%</td></tr>
+            <tr><td>Bank webhook delivery</td><td>&lt; 1 min p95</td><td>3% if &gt; 5 min for &gt; 1%</td></tr>
+            <tr><td>Audit trail completeness</td><td>100%</td><td>Material breach if &lt; 100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>4.2 Coverage SLAs (active day 1)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>SLA</th><th>Commitment</th><th>Service credit</th></tr></thead>
+          <tbody>
+            <tr><td>Pipeline screening coverage</td><td>100%</td><td>Material breach if any session bypasses pipeline</td></tr>
+            <tr><td>Bronze tier human review routing</td><td>100%</td><td>5% per session bypassed</td></tr>
+            <tr><td>Schema integrity</td><td>100%</td><td>Material breach if data incomplete</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>4.3 Effectiveness SLAs (best-effort during pilot, no penalties)</h2>
+      <p>For the <strong>first 6 months</strong>, effectiveness numbers are <strong>measured and reported but not penalized.</strong> Quarterly joint review with bank's risk team to:</p>
+      <ul>
+        <li>Establish observed pilot baselines</li>
+        <li>Identify gaps and adjust thresholds</li>
+        <li>Negotiate steady-state SLA numbers</li>
+      </ul>
+
+      <h2>4.4 Effectiveness commitments DURING pilot (deterministic-math-backed only)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Commitment</th><th>Number</th><th>Service credit</th></tr></thead>
+          <tbody>
+            <tr><td>Recycled photo detection</td><td>≥ 95% recall</td><td>5% per 5% below 95%</td></tr>
+            <tr><td>Stale photo replay detection</td><td>≥ 95% recall</td><td>5% per 5% below 95%</td></tr>
+            <tr><td>Walk-around video required pass-through</td><td>100% gated</td><td>Material breach if bypassed</td></tr>
+            <tr><td>Audit trail tamper-evidence (WORM)</td><td>100% write-once</td><td>Material breach if any tampering</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-green">
+        These are <strong>mathematics-backed</strong> (pHash is deterministic), <strong>system-enforced</strong> (gating cannot be bypassed), or <strong>infrastructure-guaranteed</strong> (WORM is a storage property). No pilot data needed; we defend these on day 1.
+      </div>
+    </section>
+
+    <section id="section-5">
+      <h1>§5 SLA schedule — Steady-state (month 7+)</h1>
+
+      <div class="phase phase-steady">
+        <h3>Steady-state posture</h3>
+        <p style="color: white; margin-bottom: 0;">After 6-month pilot, <strong>effectiveness SLAs activate</strong>, calibrated to observed pilot data.</p>
+      </div>
+
+      <h2>5.1 Pre-calibration commit floors (defensible regardless of pilot data)</h2>
+      <p>The <strong>minimum</strong> numbers AutoKon will commit at month 7 even if pilot data is pessimistic:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Effectiveness SLA</th><th>Commit floor</th><th>Aspirational target</th></tr></thead>
+          <tbody>
+            <tr><td>Recycled photo detection</td><td>≥ 95%</td><td>≥ 98%</td></tr>
+            <tr><td>Stale photo replay detection</td><td>≥ 95%</td><td>≥ 99%</td></tr>
+            <tr><td>Adjacent-unit confusion catch</td><td>≥ 60%</td><td>≥ 80%</td></tr>
+            <tr><td>AI-generated photo detection</td><td>≥ 70%</td><td>≥ 85%</td></tr>
+            <tr><td>False-positive rate cap</td><td>≤ 8%</td><td>≤ 3%</td></tr>
+            <tr><td>Pelaksana session-with-video rate</td><td>≥ 85%</td><td>≥ 95%</td></tr>
+            <tr><td>KJPP visit reduction vs baseline</td><td>≥ 30%</td><td>≥ 50%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>5.2 SLA evolution path</h2>
+      <pre>Month 1-6: PILOT
+  ├─ Process SLAs:        ACTIVE with service credits
+  ├─ Coverage SLAs:       ACTIVE with service credits
+  ├─ Determ. effectiveness: ACTIVE (pHash, freshness, WORM)
+  └─ ML/pilot effectiveness: MEASURED + REPORTED, no penalties
+
+Month 6: JOINT REVIEW
+  ├─ Pilot data review with bank risk team
+  ├─ Calibrate steady-state numbers
+  └─ Sign updated SLA schedule
+
+Month 7+: STEADY-STATE
+  ├─ All Pilot SLAs continue
+  └─ ML/pilot effectiveness: ACTIVE at calibrated numbers
+
+Month 12: ANNUAL REVIEW
+  ├─ Re-baseline metrics with annual data
+  └─ Adjust aspirational → committed where data supports</pre>
+    </section>
+
+    <section id="section-6">
+      <h1>§6 Service credit structure</h1>
+
+      <p><strong>Standard SaaS B2B pattern.</strong> No cash penalties, no claw-backs, no termination-without-cause.</p>
+
+      <h2>6.1 Calculation</h2>
+      <p>Service credits applied as a percentage discount on next monthly invoice. Cumulative cap: 50% of monthly fee per month. Excess miss is a material breach trigger requiring remediation plan.</p>
+
+      <h2>6.2 Notification + remediation flow</h2>
+      <ol>
+        <li>AutoKon self-reports SLA miss within 24 hours via bank dashboard + email notification.</li>
+        <li>Service credit applied automatically on next invoice.</li>
+        <li>If miss is sustained for 3 consecutive months for any single SLA, AutoKon delivers written remediation plan within 14 days.</li>
+        <li>If remediation plan fails 90 days after acceptance, bank may invoke material breach clause.</li>
+        <li>Material breach triggers escalation to AutoKon executive review and potential termination right (without penalty).</li>
+      </ol>
+
+      <h2>6.3 What AutoKon does NOT accept in negotiation</h2>
+      <div class="callout callout-red">
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>Cash penalties for SLA miss (industry pattern is service credits only)</li>
+          <li>Liquidated damages clauses tied to AutoKon's effectiveness metrics</li>
+          <li>Claw-back of historical service fees on future SLA miss</li>
+          <li>Personal liability or guarantor structure for effectiveness numbers</li>
+        </ul>
+      </div>
+      <p><strong>These are negotiation lines AutoKon's commercial team holds firmly.</strong> Banks who insist are not the right pilot partners.</p>
+    </section>
+
+    <section id="section-7">
+      <h1>§7 What we explicitly do NOT commit numerically</h1>
+
+      <p>Banks may push for <em>"what % of fraud will AutoKon catch?"</em> as a single number SLA. <strong>AutoKon's answer: we don't commit this.</strong></p>
+
+      <h2>7.1 The reasoning</h2>
+      <p>Fraud detection effectiveness depends on:</p>
+      <ol>
+        <li><strong>What fraud is attempted</strong> (constantly evolving threat landscape)</li>
+        <li><strong>The bank's own underwriting</strong> (which sessions enter our pipeline at all)</li>
+        <li><strong>The Pelaksana workforce quality</strong> (developer-controlled)</li>
+        <li><strong>External factors</strong> (macro fraud trends, new attacker tools)</li>
+      </ol>
+      <p>AutoKon controls the screening pipeline. AutoKon does NOT control the threat landscape, the bank's underwriting, or Indonesia's broader fraud trends. <strong>Committing a single fraud-detection rate would have AutoKon underwriting the bank's own underwriting decision</strong> — an asymmetric risk we shouldn't accept.</p>
+
+      <h2>7.2 The industry pattern</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vendor</th><th>Public benchmark</th><th>Contractual SLA</th></tr></thead>
+          <tbody>
+            <tr><td>Stripe Radar</td><td>~85% precision, ~70% recall</td><td>Process + coverage only</td></tr>
+            <tr><td>Sumsub IDV</td><td>99% liveness accuracy</td><td>Process + coverage; effectiveness as best-effort</td></tr>
+            <tr><td>Onfido</td><td>&lt;1% false-positive rate</td><td>Process + coverage</td></tr>
+            <tr><td>AWS Fraud Detector</td><td>(no public benchmark)</td><td>Process + coverage only</td></tr>
+            <tr><td>Indonesian Dukcapil</td><td>98% NIK match</td><td>Coverage only</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-blue">
+        <strong>No mature fraud-detection vendor commits raw fraud-rate numbers as contractual SLAs. AutoKon shouldn't be the first.</strong>
+      </div>
+    </section>
+
+    <section id="section-8">
+      <h1>§8 Industry benchmark reference</h1>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Capability</th><th>Vendor</th><th>Public claim</th><th>AutoKon equivalent</th></tr></thead>
+          <tbody>
+            <tr><td>Card fraud detection</td><td>Stripe Radar</td><td>~85% precision, ~70% recall</td><td>Same ballpark; better in pilot data + Indonesian context</td></tr>
+            <tr><td>Liveness detection</td><td>FaceTec / Sumsub</td><td>99% on FIDO Alliance</td><td>Via KYC partner</td></tr>
+            <tr><td>Document authentication</td><td>Onfido</td><td>&lt;1% false-positive rate</td><td>KYC partner-dependent</td></tr>
+            <tr><td>AI-generated image detection</td><td>Hive AI / Sensity</td><td>90-95% claimed</td><td>Via AI ensemble vendor</td></tr>
+            <tr><td>Audio fingerprinting</td><td>Shazam / AudibleMagic</td><td>Industry standard</td><td>Same forensic approach</td></tr>
+            <tr><td>Time-stamp authority</td><td>DigiCert / FreeTSA</td><td>RFC 3161 standard</td><td>Via TSA vendor</td></tr>
+            <tr><td>Indonesian e-KTP verification</td><td>Dukcapil (regulator)</td><td>98% NIK match</td><td>Via Privy/Tilaka partnership</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>When a bank asks <em>"but Stripe says 85%, why don't you commit 85%?"</em>, the answer is: <strong>"Stripe doesn't commit 85% in their contract either. They publish 85% as a marketing benchmark. The contractual SLA is process + coverage. We follow the same pattern."</strong></p>
+    </section>
+
+    <section id="section-9">
+      <h1>§9 Bank negotiation positioning</h1>
+
+      <div class="pushback">
+        <div class="q">"We need a fraud-detection rate SLA or we can't sign."</div>
+        <div class="a">"No mature fraud-detection vendor in the world commits raw fraud-rate numbers. Stripe Radar doesn't. Sumsub doesn't. Onfido doesn't. The reason is simple — fraud effectiveness depends on what attackers attempt, which neither party controls. What we commit is process + coverage with service credits, plus quarterly transparency on effectiveness. After 6 months of pilot data, we calibrate steady-state effectiveness commitments together. Any vendor who commits a single fraud-rate number on day 1 is either lying or about to lose money."</div>
+      </div>
+
+      <div class="pushback">
+        <div class="q">"Cash penalties only — service credits aren't strong enough signal."</div>
+        <div class="a">"AWS, Stripe, Vercel, Supabase, and every major Indonesian SaaS vendor uses service credits, not cash penalties. The reason is contractual coherence — service credits scale with the relationship. A vendor who pays cash penalties on misses tends to under-invest in fixing the underlying issue because they're already paying the cost. Service credits create an incentive to over-invest in fix to retain the relationship."</div>
+      </div>
+
+      <div class="pushback">
+        <div class="q">"Termination right after first material breach, not third."</div>
+        <div class="a">"The standard SaaS pattern is termination right after sustained breach (typically 3 months). The reason is operational continuity — banks don't want a vendor switch every time there's a temporary issue, and AutoKon doesn't want to be replaceable on a single bad month. After 3 consecutive months of miss with a remediation plan that hasn't worked, both sides have evidence the partnership isn't working."</div>
+      </div>
+
+      <div class="pushback">
+        <div class="q">"Why is Pelaksana adoption AutoKon's responsibility?"</div>
+        <div class="a">"Shared responsibility — AutoKon designs the UX and provides tooling; the developer's PM/SM enforce the workflow. We commit to a Pelaksana-adoption-rate SLA at the system level (≥ 85% by month 3), but explicitly note bank, developer, and AutoKon all contribute. If adoption drops below threshold, we jointly diagnose: is it UX, enforcement, or training?"</div>
+      </div>
+
+      <div class="pushback">
+        <div class="q">"Why can't we get a custom SLA at higher numbers — we'll pay more."</div>
+        <div class="a">"PILOT-30 is the structure for that. Higher-confidence-tier features — custom AutoKon camera app, KYC partnership integration, Sentinel-2 + Planet Labs satellite, RFC 3161 sealing, RT/RW witness program — are PILOT-30 commitments funded by the first signed bank pilot. We deliver these in 30 days from your signature. They unlock higher-confidence numbers that we'd commit at higher SLA levels. Different tier, different number, transparent pricing."</div>
+      </div>
+    </section>
+
+    <section id="section-10">
+      <h1>§10 Open questions for commercial decision</h1>
+      <ol>
+        <li><strong>Pilot duration.</strong> 6 months proposed. Banks may push 3 or 12. Recommend: 6 months minimum (time-to-baseline for ML metrics).</li>
+        <li><strong>Service credit cap.</strong> 50% of monthly fee proposed. Banks may push 100%. Recommend: 50% max.</li>
+        <li><strong>Material breach threshold.</strong> 3 consecutive months proposed. Banks may push 1. Recommend: 3 months minimum.</li>
+        <li><strong>What counts as "fraud" in joint metrics.</strong> KJPP-confirmed only? AutoKon-flagged + bank-confirmed? Need joint definition.</li>
+        <li><strong>Pricing implication of PILOT-30.</strong> 50-100% above default pricing for first signed bank.</li>
+        <li><strong>Reporting cadence.</strong> Monthly default with weekly bank-side dashboard self-serve access.</li>
+      </ol>
+    </section>
+
+    <section id="section-11">
+      <h1>§11 The SLA proposal in one paragraph</h1>
+
+      <div class="callout callout-blue">
+        <blockquote style="font-size: 15.5px; line-height: 1.65; color: var(--slate-900); border-left-color: var(--blue-600);">
+          <strong>AutoKon commits hard on what it controls (uptime, performance, coverage) with service-credit penalties from day 1. AutoKon commits with discipline on deterministic-math-backed effectiveness (pHash, freshness, WORM) from day 1. AutoKon measures and reports ML-driven effectiveness during the 6-month pilot without penalty, then activates calibrated effectiveness SLAs at month 7. The penalty structure is service credits only — standard SaaS B2B pattern. The first signed bank gets PILOT-30 premium features funded by their pilot. We do not commit raw fraud-detection rates as a single number; no mature vendor does, and we follow industry pattern.</strong>
+        </blockquote>
+      </div>
+
+      <p>That's the answer Dickson can defend in front of a bank legal team, a CFO, and an audit committee.</p>
+    </section>
+
+    <footer class="doc-ftr">
+      <div>AutoKon · SLA &amp; Metrics Proposal · Commercial Annex · 2026-05-01</div>
+      <div>Adrian + Claude Cowork</div>
+    </footer>
+
+  </main>
+
+</div>
+
+<script>
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = document.querySelectorAll('section[id]');
+  function updateActive() {
+    let activeId = null;
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 120 && rect.bottom >= 120) activeId = s.id;
+    });
+    tocLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + activeId);
+    });
+  }
+  document.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

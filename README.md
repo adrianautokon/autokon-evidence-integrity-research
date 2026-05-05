@@ -26,7 +26,13 @@ The 6 pillars:
 
 ---
 
-## Four artifacts
+## Artifacts
+
+This repo answers two related questions from Dickson, in two layers.
+
+### Layer A — The R&D brief (foundational, already approved by Dickson)
+
+The 6-pillar evidence integrity R&D brief itself, in four formats:
 
 | File | Format | Purpose | Read time |
 |---|---|---|---|
@@ -35,23 +41,40 @@ The 6 pillars:
 | **`AutoKon-Evidence-Integrity-Research.docx`** | Word | Traditional formal report for printing / formal sharing | ~45 min |
 | **`AutoKon-Evidence-Integrity-Summary.pptx`** | PowerPoint | 18-slide executive summary in AutoKon brand | ~12 min |
 
-All four contain the same content; different presentation styles for different audiences.
+### Layer B — The workflow + commercial follow-ups (Dickson's specific asks)
+
+After approving the R&D brief, Dickson asked two sequential questions. Each is answered by a sibling document with a matching interactive HTML.
+
+| Dickson's question | Answer artifact | Format |
+|---|---|---|
+| *"Can you come up with a proposal on how this solution would fit into the workflow? Siteplan and videos"* | **`WORKFLOW_INTEGRATION.md`** + **`workflow.html`** | MD source + interactive HTML with Mermaid diagrams |
+| *"How confident is the outcome going to be for production? Is it realistic? How do we measure the results? From the perspective of SLAs — what is the number we can confidently commit to the bank that we will uphold, if it goes lower we get penalised?"* | **`SLA_PROPOSAL.md`** + **`sla.html`** | Commercial annex: confidence framework, metrics, pilot + steady-state SLA schedule, service credit structure, industry benchmarks, negotiation positioning |
+
+The workflow proposal grounds the brief in TARA AI's existing pipeline (WhatsApp → Botpress → n8n → Supabase) — every change lands in one of those five layers, no new infrastructure. The SLA proposal frames *what AutoKon can confidently commit* as service-credit-backed pilot SLAs (months 1-6) followed by calibrated steady-state SLAs (month 7+).
 
 ---
 
 ## How to read
 
-**Quick orientation (10 minutes):**
+**Quick orientation — the R&D brief (10 minutes):**
 
 1. Open the **PPT summary** (`AutoKon-Evidence-Integrity-Summary.pptx`) — gets you to the 6 pillars + ship priority + open questions in 18 slides.
 
-**Standard read (1 hour):**
+**Standard read — the R&D brief (1 hour):**
 
 2. Open the **interactive HTML** (`index.html`) — same content as the MD but with TOC navigation, collapsible pillars, in-page search. Best for picking specific items.
 
-**Deep read (full engagement):**
+**Deep read — the R&D brief (full engagement):**
 
 3. Read the **MD master** (`EVIDENCE_INTEGRITY_RESEARCH.md`) or the **DOCX** (`AutoKon-Evidence-Integrity-Research.docx`). Same content; pick the format you prefer.
+
+**Operational follow-on — workflow proposal (30 minutes):**
+
+4. Open **`workflow.html`** — answers Dickson's *"how does this fit into the workflow?"* question. Mermaid sequence + flowchart diagrams. Grounded in TARA AI's existing WhatsApp → Botpress → n8n → Supabase pipeline. Or read the source at `WORKFLOW_INTEGRATION.md`.
+
+**Commercial follow-on — SLA proposal (30 minutes):**
+
+5. Open **`sla.html`** — answers Dickson's *"how confident, is it realistic, how do we measure, what number can we commit to the bank?"* questions. Confidence framework + metrics + pilot SLAs (months 1-6) + steady-state SLAs (month 7+) + service-credit penalty structure + bank-negotiation positioning. Or read the source at `SLA_PROPOSAL.md`.
 
 ---
 
