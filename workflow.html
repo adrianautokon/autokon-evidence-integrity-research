@@ -174,16 +174,81 @@
     }
     pre code { background: none; padding: 0; color: inherit; }
 
-    /* Mermaid container */
+    /* Mermaid container — force white background regardless of system theme */
     .mermaid-wrap {
       margin: 18px 0 24px 0;
-      padding: 20px;
-      background: white;
+      padding: 24px;
+      background: #FFFFFF !important;
       border: 1px solid var(--slate-200);
       border-radius: 8px;
       overflow-x: auto;
+      color-scheme: light;
     }
-    .mermaid { font-family: 'Inter', sans-serif !important; }
+    .mermaid {
+      font-family: 'Inter', sans-serif !important;
+      background: #FFFFFF !important;
+      color-scheme: light;
+    }
+    .mermaid svg {
+      background-color: #FFFFFF !important;
+      max-width: 100%;
+      height: auto;
+    }
+    /* Override any dark-mode artifact from Mermaid auto-detection */
+    .mermaid svg .actor,
+    .mermaid svg rect.actor {
+      fill: #EFF6FF !important;
+      stroke: #2563EB !important;
+    }
+    .mermaid svg text,
+    .mermaid svg .actor-text,
+    .mermaid svg .messageText,
+    .mermaid svg .labelText,
+    .mermaid svg .noteText,
+    .mermaid svg .loopText {
+      fill: #0F172A !important;
+      stroke: none !important;
+    }
+    .mermaid svg .messageLine0,
+    .mermaid svg .messageLine1 {
+      stroke: #475569 !important;
+    }
+    .mermaid svg .actor-line {
+      stroke: #94A3B8 !important;
+    }
+    .mermaid svg .note,
+    .mermaid svg rect.note {
+      fill: #FFF7ED !important;
+      stroke: #FF7426 !important;
+    }
+    .mermaid svg .activation0,
+    .mermaid svg .activation1,
+    .mermaid svg .activation2 {
+      fill: #DBEAFE !important;
+      stroke: #2563EB !important;
+    }
+    .mermaid svg .node rect,
+    .mermaid svg .node polygon,
+    .mermaid svg .node circle {
+      fill: #EFF6FF !important;
+      stroke: #2563EB !important;
+    }
+    .mermaid svg .edgePath path,
+    .mermaid svg .flowchart-link {
+      stroke: #475569 !important;
+      fill: none !important;
+    }
+    .mermaid svg .edgeLabel {
+      background-color: #FFFFFF !important;
+      color: #0F172A !important;
+    }
+    .mermaid svg .edgeLabel rect {
+      fill: #FFFFFF !important;
+    }
+    .mermaid svg .cluster rect {
+      fill: #F8FAFC !important;
+      stroke: #CBD5E1 !important;
+    }
 
     /* Callout */
     .callout {
@@ -342,35 +407,35 @@ sequenceDiagram
     participant TARA as TARA AI
 
     rect rgb(239, 246, 255)
-    Note over Bank, TARA: ① ONBOARDING (one-time)
+    Note over Bank, TARA: Phase 1 — ONBOARDING (one-time)
     Bank->>TARA: Project shell (KodeProper, akta)
     DevAdmin->>TARA: Upload siteplan PDF
-    TARA->>AutoKon: Parse + annotate
+    TARA->>AutoKon: Parse and annotate
     AutoKon->>TARA: Confirm unit boundaries
     DevAdmin->>TARA: Pelaksana onboarding (KTP + voice)
     end
 
     rect rgb(255, 247, 237)
-    Note over Bank, TARA: ② KICKOFF (one-time)
+    Note over Bank, TARA: Phase 2 — KICKOFF (one-time)
     DevAdmin->>TARA: Pre-construction baseline
     end
 
     rect rgb(220, 252, 231)
-    Note over Bank, TARA: ③ PER-SESSION CAPTURE (recurring)
-    Pelaksana->>TARA: Walk-around video (~30s)
+    Note over Bank, TARA: Phase 3 — PER-SESSION CAPTURE (recurring)
+    Pelaksana->>TARA: Walk-around video (about 30s)
     TARA->>TARA: Validate video
     Pelaksana->>TARA: Per-spec photos
-    TARA->>TARA: Cross-reference vs video + siteplan
+    TARA->>TARA: Cross-reference vs video and siteplan
     end
 
     rect rgb(254, 243, 199)
-    Note over Bank, TARA: ④ APPROVAL (per session)
-    SM->>TARA: Step 1 + witness yes/no
+    Note over Bank, TARA: Phase 4 — APPROVAL (per session)
+    SM->>TARA: Step 1 plus witness yes/no
     PM->>TARA: Step 2
     end
 
     rect rgb(241, 245, 249)
-    Note over Bank, TARA: ⑤ MILESTONE / DRAW
+    Note over Bank, TARA: Phase 5 — MILESTONE / DRAW
     DevAdmin->>TARA: Monthly drone (PILOT-30)
     AutoKon->>TARA: KJPP-routed (Bronze)
     Bank->>TARA: PIC signs report
@@ -403,7 +468,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant DevAdmin as Dev Admin
-    participant App as autokon-app /<br/>operations.autokon.id
+    participant App as autokon-app or operations
     participant Storage as Supabase Storage
     participant n8n
     participant Claude as Claude Vision
@@ -414,12 +479,12 @@ sequenceDiagram
     App->>Storage: Upload to capture-siteplans bucket
     Storage->>n8n: Trigger 1.S Siteplan Ingest (NEW)
     n8n->>Claude: Extract unit boundaries via vision
-    Claude->>n8n: Per-unit relative positions + blocks
-    n8n->>DB: Write capture_siteplans + capture_siteplan_units
+    Claude->>n8n: Per-unit relative positions plus blocks
+    n8n->>DB: Write capture_siteplans plus capture_siteplan_units
     n8n->>AutoKon: Notify "Siteplan ready for review"
     AutoKon->>App: Verify or correct unit boundaries
     App->>DB: Update with verified positions
-    DB->>n8n: Mark "verified" → activate Pillar 3 layers
+    DB->>n8n: Mark "verified", activate Pillar 3 layers
 </pre>
       </div>
 
@@ -496,8 +561,8 @@ sequenceDiagram
 
     Pelaksana->>WA: Trigger session for unit X stage Y
     WA->>Botpress: Forward to 2.4 Multi with Geo
-    Botpress->>WA: "Mohon kirim video keliling ~30 detik"<br/>"Sambil rekam, ucapkan: <random phrase>"
-    Pelaksana->>WA: Records walk-around video<br/>(speaks phrase aloud)
+    Botpress->>WA: "Kirim video keliling ~30 detik" plus voice OTP phrase
+    Pelaksana->>WA: Records walk-around video (speaks phrase aloud)
     WA->>Botpress: Forward MP4
     Botpress->>Storage: Upload to capture-videos bucket
     Storage->>n8n: Trigger 1.G Video Validation (NEW)
@@ -511,10 +576,10 @@ sequenceDiagram
 
     alt Video passes
         n8n->>Botpress: Mark session video_validated
-        Botpress->>WA: "Video OK. Sekarang silakan kirim foto per spek."
+        Botpress->>WA: "Video OK. Silakan kirim foto per spek."
     else Video fails
         n8n->>Botpress: Reject session with reason
-        Botpress->>WA: "Video tidak valid: [reason]. Ulang."
+        Botpress->>WA: "Video tidak valid. Silakan ulang."
     end
 </pre>
       </div>
@@ -535,34 +600,34 @@ sequenceDiagram
       <div class="mermaid-wrap">
 <pre class="mermaid">
 flowchart TD
-    Start[Photo submitted] --> Extract[Extract overlay via Claude<br/>GPS, timestamp, Pelaksana name]
+    Start["Photo submitted"] --> Extract["Extract overlay via Claude<br/>GPS, timestamp, Pelaksana name"]
 
-    Extract --> CrossVid{Photo GPS within<br/>10m of video walk-path?}
-    CrossVid -->|Yes| CrossSP{Photo GPS within<br/>2σ of siteplan-predicted<br/>position?}
-    CrossVid -->|No| FailV[FAIL · spatial mismatch]
+    Extract --> CrossVid{"Photo GPS within<br/>10m of video walk-path?"}
+    CrossVid -->|Yes| CrossSP{"Photo GPS within<br/>2-sigma of siteplan<br/>predicted position?"}
+    CrossVid -->|No| FailV["FAIL: spatial mismatch"]
 
-    CrossSP -->|Yes| TimeWin{Photo timestamp<br/>within video session<br/>± 30 min?}
-    CrossSP -->|No| FailSP[FAIL · siteplan mismatch]
+    CrossSP -->|Yes| TimeWin{"Photo timestamp<br/>within video session<br/>plus or minus 30 min?"}
+    CrossSP -->|No| FailSP["FAIL: siteplan mismatch"]
 
-    TimeWin -->|Yes| pHash{pHash unique vs<br/>project history?}
-    TimeWin -->|No| FailT[FAIL · temporal mismatch]
+    TimeWin -->|Yes| pHash{"pHash unique vs<br/>project history?"}
+    TimeWin -->|No| FailT["FAIL: temporal mismatch"]
 
-    pHash -->|Yes| LowTech{Low-tech fraud<br/>detectors pass?}
-    pHash -->|No| Recycle[FAIL · photo recycled]
+    pHash -->|Yes| LowTech{"Low-tech fraud<br/>detectors pass?"}
+    pHash -->|No| Recycle["FAIL: photo recycled"]
 
-    LowTech -->|Yes| AI{AI-generation<br/>detector pass?}
-    LowTech -->|No| FailLT[FAIL · consumer-app forgery]
+    LowTech -->|Yes| AI{"AI-generation<br/>detector pass?"}
+    LowTech -->|No| FailLT["FAIL: consumer-app forgery"]
 
-    AI -->|Yes| ELA{ELA forgery<br/>detector pass?}
-    AI -->|No| FailAI[FAIL · AI-generated]
+    AI -->|Yes| ELA{"ELA forgery<br/>detector pass?"}
+    AI -->|No| FailAI["FAIL: AI-generated"]
 
-    ELA -->|Yes| Pass[PASS · accept photo]
-    ELA -->|No| FailE[FAIL · edit forgery]
+    ELA -->|Yes| Pass["PASS: accept photo"]
+    ELA -->|No| FailE["FAIL: edit forgery"]
 
-    Pass --> Update[Update unit centroid<br/>+ tier score contribution]
+    Pass --> Update["Update unit centroid<br/>plus tier score contribution"]
 
-    classDef passed fill:#22C55E,color:#fff,stroke:#16a34a
-    classDef failed fill:#EF4444,color:#fff,stroke:#dc2626
+    classDef passed fill:#22C55E,color:#FFFFFF,stroke:#16A34A
+    classDef failed fill:#EF4444,color:#FFFFFF,stroke:#DC2626
     class Pass,Update passed
     class FailV,FailSP,FailT,Recycle,FailLT,FailAI,FailE failed
 </pre>
